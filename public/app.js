@@ -9,7 +9,7 @@ class ApiClient {
     const payload = await response.json();
 
     if (!payload.success) {
-      throw new Error(payload.message || 'Неизвестная ошибка');
+      throw new Error(payload.message || 'Ошибка при обработке запроса');
     }
 
     return payload.data;
@@ -43,13 +43,17 @@ class ResultView {
         : '';
     const matchesTable =
       text?.hasMatchesTable !== undefined
-        ? ` | matches_table в 3-м дочернем: ${text.hasMatchesTable ? 'найден' : 'не найден'}`
+        ? ` | matches_table: ${text.hasMatchesTable ? 'найден' : 'не найден'}`
         : '';
-    const thirdInfo =
-      text?.thirdChildInfo !== undefined
-        ? ` | 3-й дочерний: ${text.thirdChildInfo}`
+    const matchesContainer =
+      text?.matchesContainerInfo !== undefined
+        ? ` | Контейнер статистики: ${text.matchesContainerInfo}`
         : '';
-    this.#container.textContent = `Спарсили: ${name}${position}${stats}${statsChildren}${matchesTable}${thirdInfo}`;
+    const childrenInfo =
+      Array.isArray(text?.statsChildrenInfo) && text.statsChildrenInfo.length
+        ? ` | Дети блока: ${text.statsChildrenInfo.join(', ')}`
+        : '';
+    this.#container.textContent = `Спарсили: ${name}${position}${stats}${statsChildren}${matchesTable}${matchesContainer}${childrenInfo}`;
   }
 
   showError(message) {

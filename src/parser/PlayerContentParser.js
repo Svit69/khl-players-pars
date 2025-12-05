@@ -12,21 +12,45 @@ class PlayerContentParser extends AbstractContentParser {
     const $ = cheerio.load(html);
     const name = $(this.#nameSelector).text().trim();
     const position = $(this.#positionSelector).text().trim();
+
     const statsBlock = $(this.#matchStatsSelector).first();
     const hasMatchStats =
       statsBlock.length > 0 &&
       (statsBlock.is('table')
         ? statsBlock.find('tbody tr').length > 0
         : statsBlock.find('table').length > 0);
+
     const statsChildrenCount = statsBlock.length > 0 ? statsBlock.children().length : 0;
+    const statsChildrenInfo =
+      statsBlock.length > 0
+        ? statsBlock
+            .children()
+            .map((_, el) => {
+              const $el = $(el);
+              return `${$el.prop('tagName')?.toLowerCase() || ''}${
+                $el.attr('class') ? `.${$el.attr('class').trim().replace(/\s+/g, '.')}` : ''
+              }`;
+            })
+            .get()
+        : [];
+
+    const preferredTab = statsBlock.find('div.statTable-tabContent.fade.tabs_hide').first();
     const thirdChild = statsBlock.length > 0 ? statsBlock.children().eq(2) : null;
-    const thirdChildInfo =
-      thirdChild && thirdChild.length > 0
-        ? `${thirdChild.prop('tagName')?.toLowerCase() || ''}${thirdChild.attr('class') ? `.${thirdChild.attr('class').trim().replace(/\\s+/g, '.')}` : ''}`
+    const matchesContainer = preferredTab.length > 0 ? preferredTab : thirdChild;
+
+    const matchesContainerInfo =
+      matchesContainer && matchesContainer.length > 0
+        ? `${matchesContainer.prop('tagName')?.toLowerCase() || ''}${
+            matchesContainer.attr('class')
+              ? `.${matchesContainer.attr('class').trim().replace(/\s+/g, '.')}`
+              : ''
+          }`
         : 'нет элемента';
+
     const hasMatchesTable =
-      thirdChild && thirdChild.length > 0
-        ? thirdChild.find('div.matches_table').length > 0 || thirdChild.is('div.matches_table')
+      matchesContainer && matchesContainer.length > 0
+        ? matchesContainer.find('div.matches_table, table.matches_table, #table_all_games').length >
+            0 || matchesContainer.is('div.matches_table')
         : false;
 
     console.log('[PlayerContentParser] selectors:', {
@@ -35,8 +59,9 @@ class PlayerContentParser extends AbstractContentParser {
       matchStatsSelector: this.#matchStatsSelector,
       hasMatchStats,
       statsChildrenCount,
+      statsChildrenInfo,
       hasMatchesTable,
-      thirdChildInfo,
+      matchesContainerInfo,
     });
 
     if (!name) {
@@ -48,8 +73,9 @@ class PlayerContentParser extends AbstractContentParser {
       position: position || 'позиция не найдена',
       hasMatchStats,
       statsChildrenCount,
+      statsChildrenInfo,
       hasMatchesTable,
-      thirdChildInfo,
+      matchesContainerInfo,
     };
   }
 }
