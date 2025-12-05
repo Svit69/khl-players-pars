@@ -94,13 +94,18 @@ class PlayerContentParser extends AbstractContentParser {
     '#wrapper > div.players > div > div > section:nth-child(1) > div > div > div.frameCard-header__detail > div.frameCard-header__detail-header > div:nth-child(1) > div > span:nth-child(1)';
   #positionSelector =
     '#wrapper > div.players > div > div > section:nth-child(1) > div > div > div.frameCard-header__detail > div.frameCard-header__detail-header > div:nth-child(3) > p.frameCard-header__detail-local.roboto.roboto-normal.roboto-xxl.color-black';
-  #statsTabSelector = 'div.statTable-tabContent.fade.tabs_show';
+  #statsTabSelector =
+    '#wrapper > div.players > div > div > section:nth-child(2) > div > div.statTable-tabContent.fade.tabs_hide';
+  #statsTableSelector = '#table_all_games';
 
   parseContent(html) {
     const $ = cheerio.load(html);
     const name = $(this.#targetSelector).text().trim();
     const position = $(this.#positionSelector).text().trim();
-    const hasStatsTab = $(this.#statsTabSelector).length > 0;
+    const statsTab = $(this.#statsTabSelector);
+    const hasStatsSection = statsTab.length > 0;
+    const hasStatsTable =
+      hasStatsSection && statsTab.find(this.#statsTableSelector).length > 0;
 
     if (!name) {
       throw new Error('Не удалось найти данные по указанному селектору');
@@ -109,7 +114,7 @@ class PlayerContentParser extends AbstractContentParser {
     return {
       name,
       position: position || 'позиция не найдена',
-      hasStatsTab,
+      hasStatsTable,
     };
   }
 }
