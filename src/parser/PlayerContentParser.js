@@ -159,7 +159,10 @@ class PlayerContentParser extends AbstractContentParser {
 
     score += penaltyMinutes * -4.2;
 
-    return Number(score.toFixed(2));
+    const rounded = Math.round(score);
+    if (rounded > 100) return 100;
+    if (rounded < -100) return -100;
+    return rounded;
   }
 
   #parseTimeToMinutes(value) {
