@@ -31,7 +31,9 @@ class ResultView {
   showSuccess(text) {
     this.#container.classList.remove('result--error');
     this.#container.classList.add('result--success');
-    this.#container.textContent = `Спарсили: ${text}`;
+    const name = text?.name || text;
+    const position = text?.position ? ` — ${text.position}` : '';
+    this.#container.textContent = `Спарсили: ${name}${position}`;
   }
 
   showError(message) {

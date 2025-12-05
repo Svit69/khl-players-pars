@@ -92,16 +92,22 @@ class AbstractContentParser {
 class PlayerContentParser extends AbstractContentParser {
   #targetSelector =
     '#wrapper > div.players > div > div > section:nth-child(1) > div > div > div.frameCard-header__detail > div.frameCard-header__detail-header > div:nth-child(1) > div > span:nth-child(1)';
+  #positionSelector =
+    '#wrapper > div.players > div > div > section:nth-child(1) > div > div > div.frameCard-header__detail > div.frameCard-header__detail-header > div:nth-child(3) > p.frameCard-header__detail-local.roboto.roboto-normal.roboto-xxl.color-black';
 
   parseContent(html) {
     const $ = cheerio.load(html);
-    const text = $(this.#targetSelector).text().trim();
+    const name = $(this.#targetSelector).text().trim();
+    const position = $(this.#positionSelector).text().trim();
 
-    if (!text) {
+    if (!name) {
       throw new Error('Не удалось найти данные по указанному селектору');
     }
 
-    return text;
+    return {
+      name,
+      position: position || 'позиция не найдена',
+    };
   }
 }
 
