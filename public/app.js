@@ -33,15 +33,7 @@ class ResultView {
     this.#container.classList.add('result--success');
     const name = text?.name || text;
     const position = text?.position ? ` — ${text.position}` : '';
-    const statsSection =
-      text?.hasStatsSection !== undefined
-        ? ` | Секция статистики: ${text.hasStatsSection ? 'найдена' : 'не найдена'}`
-        : '';
-    const statsTable =
-      text?.hasStatsTable !== undefined
-        ? ` | Таблица игр: ${text.hasStatsTable ? 'найдена' : 'не найдена'}`
-        : '';
-    this.#container.textContent = `Спарсили: ${name}${position}${statsSection}${statsTable}`;
+    this.#container.textContent = `Спарсили: ${name}${position}`;
   }
 
   showError(message) {
