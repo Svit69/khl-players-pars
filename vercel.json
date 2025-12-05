@@ -1,0 +1,5 @@
+{
+  "buildCommand": "npm install --registry=https://registry.npmjs.org/ --fetch-retries=10 --fetch-retry-factor=3 --fetch-retry-maxtimeout=120000 && npm run build || npm run start",
+  "installCommand": "npm install --registry=https://registry.npmjs.org/ --fetch-retries=10 --fetch-retry-factor=3 --fetch-retry-maxtimeout=120000",
+  "outputDirectory": "public"
+}
