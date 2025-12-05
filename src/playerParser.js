@@ -102,10 +102,10 @@ class PlayerContentParser extends AbstractContentParser {
     const $ = cheerio.load(html);
     const name = $(this.#targetSelector).text().trim();
     const position = $(this.#positionSelector).text().trim();
-    const statsTab = $(this.#statsTabSelector);
-    const hasStatsSection = statsTab.length > 0;
+    const statsSection = $(this.#statsTabSelector).first();
+    const hasStatsSection = statsSection.length > 0;
     const hasStatsTable =
-      hasStatsSection && statsTab.find(this.#statsTableSelector).length > 0;
+      hasStatsSection && statsSection.find(this.#statsTableSelector).length > 0;
 
     if (!name) {
       throw new Error('Не удалось найти данные по указанному селектору');
@@ -114,6 +114,7 @@ class PlayerContentParser extends AbstractContentParser {
     return {
       name,
       position: position || 'позиция не найдена',
+      hasStatsSection,
       hasStatsTable,
     };
   }
