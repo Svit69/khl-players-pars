@@ -32,41 +32,41 @@ class BrowserHttpClient extends AbstractHttpClient {
   }
 
   async fetchHtml(url) {
-    const firstResponse = await fetch(url, {
-      headers: this.#defaultHeaders,
-      redirect: 'manual',
-    });
+    let currentUrl = url;
+    let cookieJar = '';
 
-    const cookies =
-      firstResponse.headers.raw()['set-cookie']?.map((c) => c.split(';')[0]).join('; ') ||
-      '';
-
-    if (this.#isRedirect(firstResponse.status)) {
-      const location = firstResponse.headers.get('location') || url;
-      const followResponse = await fetch(location, {
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const response = await fetch(currentUrl, {
         headers: {
           ...this.#defaultHeaders,
-          ...(cookies ? { Cookie: cookies } : {}),
+          ...(cookieJar ? { Cookie: cookieJar } : {}),
         },
-        redirect: 'follow',
+        redirect: 'manual',
       });
 
-      if (!followResponse.ok) {
-        throw new Error(`Ошибка при запросе страницы: ${followResponse.status}`);
+      const setCookie = response.headers.raw()['set-cookie'];
+      if (setCookie?.length) {
+        const newCookies = setCookie.map((c) => c.split(';')[0]).join('; ');
+        cookieJar = cookieJar ? `${cookieJar}; ${newCookies}` : newCookies;
       }
 
-      return followResponse.text();
+      if (response.status >= 200 && response.status < 300) {
+        return response.text();
+      }
+
+      if (response.status >= 300 && response.status < 400) {
+        const location = response.headers.get('location');
+        if (!location) {
+          throw new Error('Редирект без заголовка Location');
+        }
+        currentUrl = new URL(location, currentUrl).toString();
+        continue;
+      }
+
+      throw new Error(`Ошибка при запросе страницы: ${response.status}`);
     }
 
-    if (!firstResponse.ok) {
-      throw new Error(`Ошибка при запросе страницы: ${firstResponse.status}`);
-    }
-
-    return firstResponse.text();
-  }
-
-  #isRedirect(status) {
-    return status >= 300 && status < 400;
+    throw new Error('Превышено число попыток переходов по редиректам');
   }
 }
 
