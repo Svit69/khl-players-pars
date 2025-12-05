@@ -40,11 +40,7 @@ class PlayerContentParser extends AbstractContentParser {
 
     const hasAllGamesBody = tableBody && tableBody.length > 0;
 
-    const matchStats = this.#extractSecondRowStats(tableBody, $);
-    const fantasyScore =
-      matchStats && this.#isSkater(position)
-        ? this.#computeFantasyScore(position, matchStats)
-        : null;
+    const matchStats = this.#extractMatchRows(tableBody, $, position);
 
     console.log('[PlayerContentParser] selectors:', {
       nameSelector: this.#nameSelector,
@@ -62,61 +58,60 @@ class PlayerContentParser extends AbstractContentParser {
       name,
       position: position || 'позиция не найдена',
       hasAllGamesBody,
-      matchStats: matchStats
-        ? {
-            ...matchStats,
-            fantasyScore,
-          }
-        : null,
+      matchStats,
     };
   }
 
-  #extractSecondRowStats(tableBody, $) {
+  #extractMatchRows(tableBody, $, position) {
     if (!tableBody || tableBody.length === 0) {
-      return null;
+      return [];
     }
 
     const rows = tableBody.find('tr');
     if (!rows || rows.length < 2) {
-      return null;
+      return [];
     }
 
-    const targetRow = rows.eq(1);
-    const cells = targetRow.children('th,td');
-    const rawCells = cells.map((_, el) => $(el).text().trim()).get();
+    const slice = [];
+    const limit = Math.min(rows.length - 1, 4); // берем первые 4 строки после первой
+    for (let i = 1; i <= limit; i += 1) {
+      const targetRow = rows.eq(i);
+      const cells = targetRow.children('th,td');
+      const readCell = (idx) =>
+        cells && cells.eq(idx).length > 0 ? cells.eq(idx).text().trim() : '';
+      const readScore = () => {
+        if (!cells || cells.eq(2).length === 0) return '';
+        const cell = cells.eq(2);
+        const linkText = cell.find('a').text().trim();
+        return linkText || cell.text().trim();
+      };
 
-    const readCell = (idx) =>
-      cells && cells.eq(idx).length > 0 ? cells.eq(idx).text().trim() : '';
+      const match = {
+        date: readCell(0),
+        teams: readCell(1),
+        score: readScore(),
+        number: readCell(3),
+        goals: readCell(4),
+        assists: readCell(5),
+        points: readCell(6),
+        plusMinus: readCell(7),
+        penaltyMinutes: readCell(10),
+        shotsOnGoal: readCell(17),
+        timeOnIce: readCell(22),
+        hits: readCell(32),
+        blockedShots: readCell(33),
+        takeaways: readCell(35),
+        interceptions: readCell(36),
+      };
 
-    const readScore = () => {
-      if (!cells || cells.eq(2).length === 0) return '';
-      const cell = cells.eq(2);
-      const linkText = cell.find('a').text().trim();
-      return linkText || cell.text().trim();
-    };
+      if (this.#isSkater(position)) {
+        match.fantasyScore = this.#computeFantasyScore(position, match);
+      }
 
-    console.log('[PlayerContentParser] table row stats:', {
-      cellsCount: cells.length,
-      rawCells,
-    });
+      slice.push(match);
+    }
 
-    return {
-      date: readCell(0),
-      teams: readCell(1),
-      score: readScore(),
-      number: readCell(3),
-      goals: readCell(4),
-      assists: readCell(5),
-      points: readCell(6),
-      plusMinus: readCell(7),
-      penaltyMinutes: readCell(10),
-      shotsOnGoal: readCell(17),
-      timeOnIce: readCell(22),
-      hits: readCell(32),
-      blockedShots: readCell(33),
-      takeaways: readCell(35),
-      interceptions: readCell(36),
-    };
+    return slice;
   }
 
   #isSkater(position) {

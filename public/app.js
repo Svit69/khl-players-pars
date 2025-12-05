@@ -40,7 +40,7 @@ class ResultView {
 
     this.#container.textContent = `Спарсили: ${name}${position}${allGames}`;
 
-    if (text?.matchStats) {
+    if (Array.isArray(text?.matchStats) && text.matchStats.length) {
       this.#renderStatsTable(text.matchStats);
     }
   }
@@ -51,7 +51,7 @@ class ResultView {
     this.#container.textContent = message;
   }
 
-  #renderStatsTable(matchStats) {
+  #renderStatsTable(matchStatsList) {
     const table = document.createElement('table');
     table.className = 'stats-table';
 
@@ -84,34 +84,36 @@ class ResultView {
     });
     table.appendChild(headerRow);
 
-    const dataRow = document.createElement('tr');
-    const values = [
-      matchStats.fantasyScore ?? '—',
-      matchStats.date || '—',
-      matchStats.teams || '—',
-      matchStats.score || '—',
-      matchStats.number || '—',
-      matchStats.goals || '—',
-      matchStats.assists || '—',
-      matchStats.points || '—',
-      matchStats.plusMinus || '—',
-      matchStats.penaltyMinutes || '—',
-      matchStats.shotsOnGoal || '—',
-      matchStats.timeOnIce || '—',
-      matchStats.hits || '—',
-      matchStats.blockedShots || '—',
-      matchStats.takeaways || '—',
-      matchStats.interceptions || '—',
-    ];
+    matchStatsList.forEach((match) => {
+      const dataRow = document.createElement('tr');
+      const values = [
+        match.fantasyScore ?? '—',
+        match.date || '—',
+        match.teams || '—',
+        match.score || '—',
+        match.number || '—',
+        match.goals || '—',
+        match.assists || '—',
+        match.points || '—',
+        match.plusMinus || '—',
+        match.penaltyMinutes || '—',
+        match.shotsOnGoal || '—',
+        match.timeOnIce || '—',
+        match.hits || '—',
+        match.blockedShots || '—',
+        match.takeaways || '—',
+        match.interceptions || '—',
+      ];
 
-    values.forEach((v, idx) => {
-      const td = document.createElement('td');
-      td.textContent = v;
-      if (idx === 0) td.classList.add('stats-table__fo');
-      dataRow.appendChild(td);
+      values.forEach((v, idx) => {
+        const td = document.createElement('td');
+        td.textContent = v;
+        if (idx === 0) td.classList.add('stats-table__fo');
+        dataRow.appendChild(td);
+      });
+
+      table.appendChild(dataRow);
     });
-
-    table.appendChild(dataRow);
 
     const wrapper = document.createElement('div');
     wrapper.className = 'stats-table-wrapper';
