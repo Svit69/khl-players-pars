@@ -33,31 +33,11 @@ class ResultView {
     this.#container.classList.add('result--success');
     const name = text?.name || text;
     const position = text?.position ? ` — ${text.position}` : '';
-    const stats =
-      text?.hasMatchStats !== undefined
-        ? ` | Статистика матчей: ${text.hasMatchStats ? 'найдена' : 'не найдена'}`
-        : '';
-    const statsChildren =
-      typeof text?.statsChildrenCount === 'number'
-        ? ` | Дочерних элементов у блока статистики: ${text.statsChildrenCount}`
-        : '';
-    const matchesTable =
-      text?.hasMatchesTable !== undefined
-        ? ` | matches_table: ${text.hasMatchesTable ? 'найден' : 'не найден'}`
-        : '';
-    const matchesContainer =
-      text?.matchesContainerInfo !== undefined
-        ? ` | Контейнер статистики: ${text.matchesContainerInfo}`
-        : '';
-    const allGamesBody =
+    const allGames =
       text?.hasAllGamesBody !== undefined
         ? ` | tbody#table_all_games: ${text.hasAllGamesBody ? 'найден' : 'не найден'}`
         : '';
-    const childrenInfo =
-      Array.isArray(text?.statsChildrenInfo) && text.statsChildrenInfo.length
-        ? ` | Дети блока: ${text.statsChildrenInfo.join(', ')}`
-        : '';
-    this.#container.textContent = `Спарсили: ${name}${position}${stats}${statsChildren}${matchesTable}${matchesContainer}${allGamesBody}${childrenInfo}`;
+    this.#container.textContent = `Спарсили: ${name}${position}${allGames}`;
   }
 
   showError(message) {

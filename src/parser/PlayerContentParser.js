@@ -20,32 +20,9 @@ class PlayerContentParser extends AbstractContentParser {
         ? statsBlock.find('tbody tr').length > 0
         : statsBlock.find('table').length > 0);
 
-    const statsChildrenCount = statsBlock.length > 0 ? statsBlock.children().length : 0;
-    const statsChildrenInfo =
-      statsBlock.length > 0
-        ? statsBlock
-            .children()
-            .map((_, el) => {
-              const $el = $(el);
-              return `${$el.prop('tagName')?.toLowerCase() || ''}${
-                $el.attr('class') ? `.${$el.attr('class').trim().replace(/\s+/g, '.')}` : ''
-              }`;
-            })
-            .get()
-        : [];
-
     const preferredTab = statsBlock.find('div.statTable-tabContent.fade.tabs_hide').first();
     const thirdChild = statsBlock.length > 0 ? statsBlock.children().eq(2) : null;
     const matchesContainer = preferredTab.length > 0 ? preferredTab : thirdChild;
-
-    const matchesContainerInfo =
-      matchesContainer && matchesContainer.length > 0
-        ? `${matchesContainer.prop('tagName')?.toLowerCase() || ''}${
-            matchesContainer.attr('class')
-              ? `.${matchesContainer.attr('class').trim().replace(/\s+/g, '.')}`
-              : ''
-          }`
-        : 'нет элемента';
 
     const matchesTable =
       matchesContainer && matchesContainer.length > 0
@@ -67,10 +44,7 @@ class PlayerContentParser extends AbstractContentParser {
       positionSelector: this.#positionSelector,
       matchStatsSelector: this.#matchStatsSelector,
       hasMatchStats,
-      statsChildrenCount,
-      statsChildrenInfo,
       hasMatchesTable,
-      matchesContainerInfo,
       hasAllGamesBody,
     });
 
@@ -81,11 +55,6 @@ class PlayerContentParser extends AbstractContentParser {
     return {
       name,
       position: position || 'позиция не найдена',
-      hasMatchStats,
-      statsChildrenCount,
-      statsChildrenInfo,
-      hasMatchesTable,
-      matchesContainerInfo,
       hasAllGamesBody,
     };
   }
