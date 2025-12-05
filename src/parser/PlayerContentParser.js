@@ -6,8 +6,7 @@ class PlayerContentParser extends AbstractContentParser {
     '#wrapper > div.players > div > div > section:nth-child(1) > div > div > div.frameCard-header__detail > div.frameCard-header__detail-header > div:nth-child(1) > div > span:nth-child(1)';
   #positionSelector =
     '#wrapper > div.players > div > div > section:nth-child(1) > div > div > div.frameCard-header__detail > div.frameCard-header__detail-header > div:nth-child(3) > p.frameCard-header__detail-local.roboto.roboto-normal.roboto-xxl.color-black';
-  #matchStatsSelector =
-    '#wrapper section:nth-child(2) div.statTable.players-detail__statTable, #wrapper div.statTable.players-detail__statTable, #table_all_games';
+  #matchStatsSelector = 'div.players-detail';
 
   parseContent(html) {
     const $ = cheerio.load(html);
