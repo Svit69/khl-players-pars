@@ -18,12 +18,14 @@ class PlayerContentParser extends AbstractContentParser {
       (statsBlock.is('table')
         ? statsBlock.find('tbody tr').length > 0
         : statsBlock.find('table').length > 0);
+    const statsChildrenCount = statsBlock.length > 0 ? statsBlock.children().length : 0;
 
     console.log('[PlayerContentParser] selectors:', {
       nameSelector: this.#nameSelector,
       positionSelector: this.#positionSelector,
       matchStatsSelector: this.#matchStatsSelector,
       hasMatchStats,
+      statsChildrenCount,
     });
 
     if (!name) {
@@ -34,6 +36,7 @@ class PlayerContentParser extends AbstractContentParser {
       name,
       position: position || 'позиция не найдена',
       hasMatchStats,
+      statsChildrenCount,
     };
   }
 }

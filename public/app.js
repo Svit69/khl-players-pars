@@ -37,7 +37,11 @@ class ResultView {
       text?.hasMatchStats !== undefined
         ? ` | Статистика матчей: ${text.hasMatchStats ? 'найдена' : 'не найдена'}`
         : '';
-    this.#container.textContent = `Спарсили: ${name}${position}${stats}`;
+    const statsChildren =
+      typeof text?.statsChildrenCount === 'number'
+        ? ` | Дочерних элементов у блока статистики: ${text.statsChildrenCount}`
+        : '';
+    this.#container.textContent = `Спарсили: ${name}${position}${stats}${statsChildren}`;
   }
 
   showError(message) {
