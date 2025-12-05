@@ -49,11 +49,15 @@ class ResultView {
       text?.matchesContainerInfo !== undefined
         ? ` | Контейнер статистики: ${text.matchesContainerInfo}`
         : '';
+    const allGamesBody =
+      text?.hasAllGamesBody !== undefined
+        ? ` | tbody#table_all_games: ${text.hasAllGamesBody ? 'найден' : 'не найден'}`
+        : '';
     const childrenInfo =
       Array.isArray(text?.statsChildrenInfo) && text.statsChildrenInfo.length
         ? ` | Дети блока: ${text.statsChildrenInfo.join(', ')}`
         : '';
-    this.#container.textContent = `Спарсили: ${name}${position}${stats}${statsChildren}${matchesTable}${matchesContainer}${childrenInfo}`;
+    this.#container.textContent = `Спарсили: ${name}${position}${stats}${statsChildren}${matchesTable}${matchesContainer}${allGamesBody}${childrenInfo}`;
   }
 
   showError(message) {

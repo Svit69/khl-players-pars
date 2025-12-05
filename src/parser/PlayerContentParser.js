@@ -47,10 +47,19 @@ class PlayerContentParser extends AbstractContentParser {
           }`
         : 'нет элемента';
 
-    const hasMatchesTable =
+    const matchesTable =
       matchesContainer && matchesContainer.length > 0
-        ? matchesContainer.find('div.matches_table, table.matches_table, #table_all_games').length >
-            0 || matchesContainer.is('div.matches_table')
+        ? matchesContainer.find('div.matches_table, table.matches_table, #table_all_games')
+        : null;
+    const hasMatchesTable =
+      matchesTable && matchesTable.length > 0
+        ? true
+        : matchesContainer && matchesContainer.is('div.matches_table');
+
+    const hasAllGamesBody =
+      matchesTable && matchesTable.length > 0
+        ? matchesTable.find('tbody#table_all_games').length > 0 ||
+          matchesTable.filter('tbody#table_all_games').length > 0
         : false;
 
     console.log('[PlayerContentParser] selectors:', {
@@ -62,6 +71,7 @@ class PlayerContentParser extends AbstractContentParser {
       statsChildrenInfo,
       hasMatchesTable,
       matchesContainerInfo,
+      hasAllGamesBody,
     });
 
     if (!name) {
@@ -76,6 +86,7 @@ class PlayerContentParser extends AbstractContentParser {
       statsChildrenInfo,
       hasMatchesTable,
       matchesContainerInfo,
+      hasAllGamesBody,
     };
   }
 }
