@@ -24,18 +24,49 @@ class BrowserHttpClient extends AbstractHttpClient {
       Accept:
         'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
       'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+      'Accept-Encoding': 'gzip, deflate, br',
+      'Upgrade-Insecure-Requests': '1',
+      Referer: 'https://www.khl.ru/',
       Connection: 'keep-alive',
     };
   }
 
   async fetchHtml(url) {
-    const response = await fetch(url, { headers: this.#defaultHeaders });
+    const firstResponse = await fetch(url, {
+      headers: this.#defaultHeaders,
+      redirect: 'manual',
+    });
 
-    if (!response.ok) {
-      throw new Error(`Ошибка при запросе страницы: ${response.status}`);
+    const cookies =
+      firstResponse.headers.raw()['set-cookie']?.map((c) => c.split(';')[0]).join('; ') ||
+      '';
+
+    if (this.#isRedirect(firstResponse.status)) {
+      const location = firstResponse.headers.get('location') || url;
+      const followResponse = await fetch(location, {
+        headers: {
+          ...this.#defaultHeaders,
+          ...(cookies ? { Cookie: cookies } : {}),
+        },
+        redirect: 'follow',
+      });
+
+      if (!followResponse.ok) {
+        throw new Error(`Ошибка при запросе страницы: ${followResponse.status}`);
+      }
+
+      return followResponse.text();
     }
 
-    return response.text();
+    if (!firstResponse.ok) {
+      throw new Error(`Ошибка при запросе страницы: ${firstResponse.status}`);
+    }
+
+    return firstResponse.text();
+  }
+
+  #isRedirect(status) {
+    return status >= 300 && status < 400;
   }
 }
 
