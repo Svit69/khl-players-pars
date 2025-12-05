@@ -58,7 +58,7 @@ class ResultView {
     const headerRow = document.createElement('tr');
     const headers = [
       { label: 'Дата', title: '' },
-      { label: 'Команды', title: 'Название матча (пока не парсится)' },
+      { label: 'Команды', title: '' },
       { label: 'Счет', title: '' },
       { label: '№', title: 'Номер игрока' },
       { label: 'Ш', title: 'Заброшенные шайбы' },
@@ -85,7 +85,7 @@ class ResultView {
     const dataRow = document.createElement('tr');
     const values = [
       matchStats.date || '—',
-      '', // Команды пока пропускаем
+      matchStats.teams || '—',
       matchStats.score || '—',
       matchStats.number || '—',
       matchStats.goals || '—',

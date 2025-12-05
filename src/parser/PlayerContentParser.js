@@ -26,13 +26,17 @@ class PlayerContentParser extends AbstractContentParser {
 
     const matchesTable =
       matchesContainer && matchesContainer.length > 0
-        ? matchesContainer.find('div.matches_table, table.matches_table, #table_all_games, tbody#table_all_games').first()
+        ? matchesContainer
+            .find('div.matches_table, table.matches_table, #table_all_games, tbody#table_all_games')
+            .first()
         : null;
 
     const tableBody =
       matchesTable && matchesTable.is('tbody')
         ? matchesTable
-        : $('tbody#table_all_games').first();
+        : matchesTable && matchesTable.is('table')
+          ? matchesTable.find('tbody#table_all_games, tbody').first()
+          : $('tbody#table_all_games').first();
 
     const hasAllGamesBody = tableBody && tableBody.length > 0;
 
@@ -69,10 +73,18 @@ class PlayerContentParser extends AbstractContentParser {
     }
 
     const targetRow = rows.eq(1);
-    const cells = targetRow.children('td');
+    const cells = targetRow.children('th,td');
     const rawCells = cells.map((_, el) => $(el).text().trim()).get();
 
-    const readCell = (idx) => (cells && cells.eq(idx).length > 0 ? cells.eq(idx).text().trim() : '');
+    const readCell = (idx) =>
+      cells && cells.eq(idx).length > 0 ? cells.eq(idx).text().trim() : '';
+
+    const readScore = () => {
+      if (!cells || cells.eq(2).length === 0) return '';
+      const cell = cells.eq(2);
+      const linkText = cell.find('a').text().trim();
+      return linkText || cell.text().trim();
+    };
 
     console.log('[PlayerContentParser] table row stats:', {
       cellsCount: cells.length,
@@ -81,7 +93,8 @@ class PlayerContentParser extends AbstractContentParser {
 
     return {
       date: readCell(0),
-      score: readCell(2),
+      teams: readCell(1),
+      score: readScore(),
       number: readCell(3),
       goals: readCell(4),
       assists: readCell(5),
