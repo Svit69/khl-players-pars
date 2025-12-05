@@ -33,7 +33,11 @@ class ResultView {
     this.#container.classList.add('result--success');
     const name = text?.name || text;
     const position = text?.position ? ` — ${text.position}` : '';
-    this.#container.textContent = `Спарсили: ${name}${position}`;
+    const stats =
+      text?.hasMatchStats !== undefined
+        ? ` | Статистика матчей: ${text.hasMatchStats ? 'найдена' : 'не найдена'}`
+        : '';
+    this.#container.textContent = `Спарсили: ${name}${position}${stats}`;
   }
 
   showError(message) {
