@@ -152,3 +152,38 @@ body {
     width: 100%;
   }
 }
+
+.stats-table-wrapper {
+  margin-top: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.stats-table-title {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.stats-table th,
+.stats-table td {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 8px 10px;
+  text-align: center;
+}
+
+.stats-table th {
+  background: rgba(255, 255, 255, 0.06);
+  font-weight: 700;
+}
+
+.stats-table tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}

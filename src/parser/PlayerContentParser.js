@@ -26,25 +26,23 @@ class PlayerContentParser extends AbstractContentParser {
 
     const matchesTable =
       matchesContainer && matchesContainer.length > 0
-        ? matchesContainer.find('div.matches_table, table.matches_table, #table_all_games')
+        ? matchesContainer.find('div.matches_table, table.matches_table, #table_all_games, tbody#table_all_games').first()
         : null;
-    const hasMatchesTable =
-      matchesTable && matchesTable.length > 0
-        ? true
-        : matchesContainer && matchesContainer.is('div.matches_table');
 
-    const hasAllGamesBody =
-      matchesTable && matchesTable.length > 0
-        ? matchesTable.find('tbody#table_all_games').length > 0 ||
-          matchesTable.filter('tbody#table_all_games').length > 0
-        : false;
+    const tableBody =
+      matchesTable && matchesTable.is('tbody')
+        ? matchesTable
+        : $('tbody#table_all_games').first();
+
+    const hasAllGamesBody = tableBody && tableBody.length > 0;
+
+    const matchStats = this.#extractSecondRowStats(tableBody, $);
 
     console.log('[PlayerContentParser] selectors:', {
       nameSelector: this.#nameSelector,
       positionSelector: this.#positionSelector,
       matchStatsSelector: this.#matchStatsSelector,
       hasMatchStats,
-      hasMatchesTable,
       hasAllGamesBody,
     });
 
@@ -56,6 +54,46 @@ class PlayerContentParser extends AbstractContentParser {
       name,
       position: position || 'позиция не найдена',
       hasAllGamesBody,
+      matchStats,
+    };
+  }
+
+  #extractSecondRowStats(tableBody, $) {
+    if (!tableBody || tableBody.length === 0) {
+      return null;
+    }
+
+    const rows = tableBody.find('tr');
+    if (!rows || rows.length < 2) {
+      return null;
+    }
+
+    const targetRow = rows.eq(1);
+    const cells = targetRow.children('td');
+    const rawCells = cells.map((_, el) => $(el).text().trim()).get();
+
+    const readCell = (idx) => (cells && cells.eq(idx).length > 0 ? cells.eq(idx).text().trim() : '');
+
+    console.log('[PlayerContentParser] table row stats:', {
+      cellsCount: cells.length,
+      rawCells,
+    });
+
+    return {
+      date: readCell(0),
+      score: readCell(2),
+      number: readCell(3),
+      goals: readCell(4),
+      assists: readCell(5),
+      points: readCell(6),
+      plusMinus: readCell(7),
+      penaltyMinutes: readCell(10),
+      shotsOnGoal: readCell(17),
+      timeOnIce: readCell(22),
+      hits: readCell(32),
+      blockedShots: readCell(33),
+      takeaways: readCell(35),
+      interceptions: readCell(36),
     };
   }
 }
