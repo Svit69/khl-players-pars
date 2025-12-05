@@ -3,7 +3,7 @@ import {
   PlayerContentParser,
   PlayerParsingService,
   UrlValidator,
-} from '../src/playerParser.js';
+} from '../src/index.js';
 
 const validator = new UrlValidator();
 const httpClient = new BrowserHttpClient();

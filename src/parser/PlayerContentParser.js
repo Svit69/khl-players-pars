@@ -1,0 +1,36 @@
+import * as cheerio from 'cheerio';
+import AbstractContentParser from './AbstractContentParser.js';
+
+class PlayerContentParser extends AbstractContentParser {
+  #nameSelector =
+    '#wrapper > div.players > div > div > section:nth-child(1) > div > div > div.frameCard-header__detail > div.frameCard-header__detail-header > div:nth-child(1) > div > span:nth-child(1)';
+  #positionSelector =
+    '#wrapper > div.players > div > div > section:nth-child(1) > div > div > div.frameCard-header__detail > div.frameCard-header__detail-header > div:nth-child(3) > p.frameCard-header__detail-local.roboto.roboto-normal.roboto-xxl.color-black';
+  #statsSectionSelector =
+    '#wrapper > div.players > div > div > section:nth-child(2) > div > div.statTable-tabContent.fade.tabs_hide';
+  #statsTableSelector = '#table_all_games';
+
+  parseContent(html) {
+    const $ = cheerio.load(html);
+    const name = $(this.#nameSelector).text().trim();
+    const position = $(this.#positionSelector).text().trim();
+
+    const statsSection = $(this.#statsSectionSelector).first();
+    const hasStatsSection = statsSection.length > 0;
+    const hasStatsTable =
+      hasStatsSection && statsSection.find(this.#statsTableSelector).length > 0;
+
+    if (!name) {
+      throw new Error('Не удалось найти имя игрока по заданному селектору');
+    }
+
+    return {
+      name,
+      position: position || 'позиция не найдена',
+      hasStatsSection,
+      hasStatsTable,
+    };
+  }
+}
+
+export default PlayerContentParser;
