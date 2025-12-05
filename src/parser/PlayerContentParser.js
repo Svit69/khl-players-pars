@@ -19,6 +19,13 @@ class PlayerContentParser extends AbstractContentParser {
         ? statsBlock.find('tbody tr').length > 0
         : statsBlock.find('table').length > 0);
 
+    console.log('[PlayerContentParser] selectors:', {
+      nameSelector: this.#nameSelector,
+      positionSelector: this.#positionSelector,
+      matchStatsSelector: this.#matchStatsSelector,
+      hasMatchStats,
+    });
+
     if (!name) {
       throw new Error('Не удалось найти имя игрока по заданному селектору');
     }
