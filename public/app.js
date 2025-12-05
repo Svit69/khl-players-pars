@@ -41,7 +41,11 @@ class ResultView {
       typeof text?.statsChildrenCount === 'number'
         ? ` | Дочерних элементов у блока статистики: ${text.statsChildrenCount}`
         : '';
-    this.#container.textContent = `Спарсили: ${name}${position}${stats}${statsChildren}`;
+    const matchesTable =
+      text?.hasMatchesTable !== undefined
+        ? ` | matches_table в 3-м дочернем: ${text.hasMatchesTable ? 'найден' : 'не найден'}`
+        : '';
+    this.#container.textContent = `Спарсили: ${name}${position}${stats}${statsChildren}${matchesTable}`;
   }
 
   showError(message) {

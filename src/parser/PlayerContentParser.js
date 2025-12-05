@@ -19,6 +19,11 @@ class PlayerContentParser extends AbstractContentParser {
         ? statsBlock.find('tbody tr').length > 0
         : statsBlock.find('table').length > 0);
     const statsChildrenCount = statsBlock.length > 0 ? statsBlock.children().length : 0;
+    const thirdChild = statsBlock.length > 0 ? statsBlock.children().eq(2) : null;
+    const hasMatchesTable =
+      thirdChild && thirdChild.length > 0
+        ? thirdChild.find('div.matches_table').length > 0 || thirdChild.is('div.matches_table')
+        : false;
 
     console.log('[PlayerContentParser] selectors:', {
       nameSelector: this.#nameSelector,
@@ -26,6 +31,7 @@ class PlayerContentParser extends AbstractContentParser {
       matchStatsSelector: this.#matchStatsSelector,
       hasMatchStats,
       statsChildrenCount,
+      hasMatchesTable,
     });
 
     if (!name) {
@@ -37,6 +43,7 @@ class PlayerContentParser extends AbstractContentParser {
       position: position || 'позиция не найдена',
       hasMatchStats,
       statsChildrenCount,
+      hasMatchesTable,
     };
   }
 }
