@@ -45,7 +45,11 @@ class ResultView {
       text?.hasMatchesTable !== undefined
         ? ` | matches_table в 3-м дочернем: ${text.hasMatchesTable ? 'найден' : 'не найден'}`
         : '';
-    this.#container.textContent = `Спарсили: ${name}${position}${stats}${statsChildren}${matchesTable}`;
+    const thirdInfo =
+      text?.thirdChildInfo !== undefined
+        ? ` | 3-й дочерний: ${text.thirdChildInfo}`
+        : '';
+    this.#container.textContent = `Спарсили: ${name}${position}${stats}${statsChildren}${matchesTable}${thirdInfo}`;
   }
 
   showError(message) {

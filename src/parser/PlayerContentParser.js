@@ -20,6 +20,10 @@ class PlayerContentParser extends AbstractContentParser {
         : statsBlock.find('table').length > 0);
     const statsChildrenCount = statsBlock.length > 0 ? statsBlock.children().length : 0;
     const thirdChild = statsBlock.length > 0 ? statsBlock.children().eq(2) : null;
+    const thirdChildInfo =
+      thirdChild && thirdChild.length > 0
+        ? `${thirdChild.prop('tagName')?.toLowerCase() || ''}${thirdChild.attr('class') ? `.${thirdChild.attr('class').trim().replace(/\\s+/g, '.')}` : ''}`
+        : 'нет элемента';
     const hasMatchesTable =
       thirdChild && thirdChild.length > 0
         ? thirdChild.find('div.matches_table').length > 0 || thirdChild.is('div.matches_table')
@@ -32,6 +36,7 @@ class PlayerContentParser extends AbstractContentParser {
       hasMatchStats,
       statsChildrenCount,
       hasMatchesTable,
+      thirdChildInfo,
     });
 
     if (!name) {
@@ -44,6 +49,7 @@ class PlayerContentParser extends AbstractContentParser {
       hasMatchStats,
       statsChildrenCount,
       hasMatchesTable,
+      thirdChildInfo,
     };
   }
 }
