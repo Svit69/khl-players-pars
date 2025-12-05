@@ -57,6 +57,7 @@ class ResultView {
 
     const headerRow = document.createElement('tr');
     const headers = [
+      { label: 'ФО', title: 'Фэнтези очки (для полевых)' },
       { label: 'Дата', title: '' },
       { label: 'Команды', title: '' },
       { label: 'Счет', title: '' },
@@ -84,6 +85,7 @@ class ResultView {
 
     const dataRow = document.createElement('tr');
     const values = [
+      matchStats.fantasyScore ?? '—',
       matchStats.date || '—',
       matchStats.teams || '—',
       matchStats.score || '—',

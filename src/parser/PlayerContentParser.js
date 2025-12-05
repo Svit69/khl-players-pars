@@ -41,6 +41,10 @@ class PlayerContentParser extends AbstractContentParser {
     const hasAllGamesBody = tableBody && tableBody.length > 0;
 
     const matchStats = this.#extractSecondRowStats(tableBody, $);
+    const fantasyScore =
+      matchStats && this.#isSkater(position)
+        ? this.#computeFantasyScore(matchStats)
+        : null;
 
     console.log('[PlayerContentParser] selectors:', {
       nameSelector: this.#nameSelector,
@@ -58,7 +62,12 @@ class PlayerContentParser extends AbstractContentParser {
       name,
       position: position || 'позиция не найдена',
       hasAllGamesBody,
-      matchStats,
+      matchStats: matchStats
+        ? {
+            ...matchStats,
+            fantasyScore,
+          }
+        : null,
     };
   }
 
@@ -108,6 +117,59 @@ class PlayerContentParser extends AbstractContentParser {
       takeaways: readCell(35),
       interceptions: readCell(36),
     };
+  }
+
+  #isSkater(position) {
+    return position && position.toLowerCase() !== 'вратарь';
+  }
+
+  #computeFantasyScore(stats) {
+    const toNum = (value) => {
+      if (typeof value !== 'string') return Number(value) || 0;
+      const normalized = value.replace(',', '.').replace('−', '-').trim();
+      const parsed = parseFloat(normalized);
+      return Number.isFinite(parsed) ? parsed : 0;
+    };
+
+    const points = toNum(stats.points);
+    const shotsOnGoal = toNum(stats.shotsOnGoal);
+    const plusMinus = toNum(stats.plusMinus);
+    const hits = toNum(stats.hits);
+    const blockedShots = toNum(stats.blockedShots);
+    const takeaways = toNum(stats.takeaways);
+    const interceptions = toNum(stats.interceptions);
+    const penaltyMinutes = toNum(stats.penaltyMinutes);
+    const timeOnIce = stats.timeOnIce || '';
+
+    let score = 0;
+
+    if (points > 0) {
+      score += 30 + (points - 1) * 10;
+    }
+
+    score += shotsOnGoal * 2.2;
+    score += plusMinus * 7;
+    score += hits * 1.2;
+    score += blockedShots * 1.3;
+    score += takeaways * 1.4;
+    score += interceptions * 1.4;
+
+    const timeMinutes = this.#parseTimeToMinutes(timeOnIce);
+    score += (timeMinutes / 60) * 50;
+
+    score += penaltyMinutes * -4.2;
+
+    return Number(score.toFixed(2));
+  }
+
+  #parseTimeToMinutes(value) {
+    if (!value || typeof value !== 'string') return 0;
+    const parts = value.split(':');
+    if (parts.length !== 2) return 0;
+    const minutes = parseInt(parts[0], 10);
+    const seconds = parseInt(parts[1], 10);
+    if (!Number.isFinite(minutes) || !Number.isFinite(seconds)) return 0;
+    return minutes + seconds / 60;
   }
 }
 
