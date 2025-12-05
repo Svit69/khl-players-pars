@@ -43,7 +43,7 @@ class PlayerContentParser extends AbstractContentParser {
     const matchStats = this.#extractSecondRowStats(tableBody, $);
     const fantasyScore =
       matchStats && this.#isSkater(position)
-        ? this.#computeFantasyScore(matchStats)
+        ? this.#computeFantasyScore(position, matchStats)
         : null;
 
     console.log('[PlayerContentParser] selectors:', {
@@ -123,7 +123,7 @@ class PlayerContentParser extends AbstractContentParser {
     return position && position.toLowerCase() !== 'вратарь';
   }
 
-  #computeFantasyScore(stats) {
+  #computeFantasyScore(position, stats) {
     const toNum = (value) => {
       if (typeof value !== 'string') return Number(value) || 0;
       const normalized = value.replace(',', '.').replace('−', '-').trim();
@@ -141,23 +141,47 @@ class PlayerContentParser extends AbstractContentParser {
     const penaltyMinutes = toNum(stats.penaltyMinutes);
     const timeOnIce = stats.timeOnIce || '';
 
+    const isDefender = position && position.toLowerCase().includes('защит');
+
+    const weights = isDefender
+      ? {
+          shotsOnGoal: 2.5,
+          plusMinus: 7,
+          hits: 3.2,
+          blockedShots: 4.3,
+          takeaways: 4.4,
+          interceptions: 4.4,
+          timeFactor: 40,
+          penalty: -3.2,
+        }
+      : {
+          shotsOnGoal: 2.2,
+          plusMinus: 7,
+          hits: 1.2,
+          blockedShots: 1.3,
+          takeaways: 1.4,
+          interceptions: 1.4,
+          timeFactor: 50,
+          penalty: -4.2,
+        };
+
     let score = 0;
 
     if (points > 0) {
       score += 30 + (points - 1) * 10;
     }
 
-    score += shotsOnGoal * 2.2;
-    score += plusMinus * 7;
-    score += hits * 1.2;
-    score += blockedShots * 1.3;
-    score += takeaways * 1.4;
-    score += interceptions * 1.4;
+    score += shotsOnGoal * weights.shotsOnGoal;
+    score += plusMinus * weights.plusMinus;
+    score += hits * weights.hits;
+    score += blockedShots * weights.blockedShots;
+    score += takeaways * weights.takeaways;
+    score += interceptions * weights.interceptions;
 
     const timeMinutes = this.#parseTimeToMinutes(timeOnIce);
-    score += (timeMinutes / 60) * 50;
+    score += (timeMinutes / 60) * weights.timeFactor;
 
-    score += penaltyMinutes * -4.2;
+    score += penaltyMinutes * weights.penalty;
 
     const rounded = Math.round(score);
     if (rounded > 100) return 100;

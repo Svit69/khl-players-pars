@@ -189,3 +189,9 @@ body {
 .stats-table tr:nth-child(even) {
   background: rgba(255, 255, 255, 0.02);
 }
+
+.stats-table__fo {
+  background: rgba(72, 207, 174, 0.2) !important;
+  color: #0b1411;
+  font-weight: 800;
+}

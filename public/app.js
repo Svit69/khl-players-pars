@@ -75,10 +75,11 @@ class ResultView {
       { label: 'ПХТ', title: 'Перехваты' },
     ];
 
-    headers.forEach((h) => {
+    headers.forEach((h, idx) => {
       const th = document.createElement('th');
       th.textContent = h.label;
       if (h.title) th.title = h.title;
+       if (idx === 0) th.classList.add('stats-table__fo');
       headerRow.appendChild(th);
     });
     table.appendChild(headerRow);
@@ -103,9 +104,10 @@ class ResultView {
       matchStats.interceptions || '—',
     ];
 
-    values.forEach((v) => {
+    values.forEach((v, idx) => {
       const td = document.createElement('td');
       td.textContent = v;
+      if (idx === 0) td.classList.add('stats-table__fo');
       dataRow.appendChild(td);
     });
 
