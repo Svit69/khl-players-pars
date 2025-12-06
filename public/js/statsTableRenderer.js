@@ -6,7 +6,8 @@ export default class StatsTableRenderer {
 
     const isGoalie =
       (position && position.toLowerCase().includes('вратар')) ||
-      matchStatsList[0]?.type === 'goalie';
+      matchStatsList[0]?.type === 'goalie' ||
+      typeof matchStatsList[0]?.wins !== 'undefined';
     const headers = isGoalie ? this.#goalieHeaders() : this.#skaterHeaders();
 
     const wrapper = document.createElement('div');

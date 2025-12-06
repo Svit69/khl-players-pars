@@ -119,7 +119,9 @@ class MatchTableParser {
 
   #looksLikeGoalieRow(row) {
     const cells = row.children('th,td');
-    return cells && cells.length > 0 && cells.length <= 20;
+    if (!cells || cells.length === 0) return false;
+    const count = cells.length;
+    return count >= 15 && count <= 25;
   }
 }
 
