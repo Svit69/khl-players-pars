@@ -1,0 +1,101 @@
+class FantasyScoreCalculator {
+  compute(position, stats) {
+    if (!this.#isSkater(position)) {
+      return null;
+    }
+
+    const normalized = this.#normalizeStats(stats);
+    const weights = this.#weightsFor(position);
+
+    let score = 0;
+
+    if (normalized.points > 0) {
+      score += 30 + (normalized.points - 1) * 10;
+    }
+
+    score += normalized.shotsOnGoal * weights.shotsOnGoal;
+    score += normalized.plusMinus * weights.plusMinus;
+    score += normalized.hits * weights.hits;
+    score += normalized.blockedShots * weights.blockedShots;
+    score += normalized.takeaways * weights.takeaways;
+    score += normalized.interceptions * weights.interceptions;
+
+    const timeMinutes = this.#parseTimeToMinutes(normalized.timeOnIce);
+    score += (timeMinutes / 60) * weights.timeFactor;
+
+    score += normalized.penaltyMinutes * weights.penalty;
+
+    return this.#clamp(Math.round(score));
+  }
+
+  #normalizeStats(stats) {
+    const toNum = (value) => {
+      if (typeof value !== 'string') return Number(value) || 0;
+      const normalized = value.replace(',', '.').replace('−', '-').trim();
+      const parsed = parseFloat(normalized);
+      return Number.isFinite(parsed) ? parsed : 0;
+    };
+
+    return {
+      points: toNum(stats.points),
+      shotsOnGoal: toNum(stats.shotsOnGoal),
+      plusMinus: toNum(stats.plusMinus),
+      hits: toNum(stats.hits),
+      blockedShots: toNum(stats.blockedShots),
+      takeaways: toNum(stats.takeaways),
+      interceptions: toNum(stats.interceptions),
+      penaltyMinutes: toNum(stats.penaltyMinutes),
+      timeOnIce: stats.timeOnIce || '',
+    };
+  }
+
+  #weightsFor(position) {
+    const isDefender = position && position.toLowerCase().includes('защит');
+
+    if (isDefender) {
+      return {
+        shotsOnGoal: 2.5,
+        plusMinus: 7,
+        hits: 3.2,
+        blockedShots: 4.3,
+        takeaways: 4.4,
+        interceptions: 4.4,
+        timeFactor: 40,
+        penalty: -3.2,
+      };
+    }
+
+    return {
+      shotsOnGoal: 2.2,
+      plusMinus: 7,
+      hits: 1.2,
+      blockedShots: 1.3,
+      takeaways: 1.4,
+      interceptions: 1.4,
+      timeFactor: 50,
+      penalty: -4.2,
+    };
+  }
+
+  #parseTimeToMinutes(value) {
+    if (!value || typeof value !== 'string') return 0;
+    const parts = value.split(':');
+    if (parts.length !== 2) return 0;
+    const minutes = parseInt(parts[0], 10);
+    const seconds = parseInt(parts[1], 10);
+    if (!Number.isFinite(minutes) || !Number.isFinite(seconds)) return 0;
+    return minutes + seconds / 60;
+  }
+
+  #clamp(score) {
+    if (score > 100) return 100;
+    if (score < -100) return -100;
+    return score;
+  }
+
+  #isSkater(position) {
+    return position && position.toLowerCase() !== 'вратарь';
+  }
+}
+
+export default FantasyScoreCalculator;
