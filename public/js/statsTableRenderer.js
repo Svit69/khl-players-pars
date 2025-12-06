@@ -1,10 +1,12 @@
 export default class StatsTableRenderer {
-  render(matchStatsList) {
+  render(matchStatsList, position = '') {
     if (!Array.isArray(matchStatsList) || matchStatsList.length === 0) {
       return null;
     }
 
-    const isGoalie = matchStatsList[0]?.type === 'goalie';
+    const isGoalie =
+      (position && position.toLowerCase().includes('вратар')) ||
+      matchStatsList[0]?.type === 'goalie';
     const headers = isGoalie ? this.#goalieHeaders() : this.#skaterHeaders();
 
     const wrapper = document.createElement('div');

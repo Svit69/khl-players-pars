@@ -25,7 +25,7 @@ export default class ResultView {
     this.#container.textContent = `Спарсили: ${name}${position}${allGames}`;
 
     if (Array.isArray(text?.matchStats) && text.matchStats.length) {
-      const table = this.#statsRenderer.render(text.matchStats);
+      const table = this.#statsRenderer.render(text.matchStats, text?.position || '');
       if (table) {
         this.#container.appendChild(table);
       }
