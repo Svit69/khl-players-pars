@@ -1,10 +1,13 @@
 class FantasyScoreCalculator {
   compute(position, stats) {
-    if (this.#isGoalie(position)) {
+    const kindGoalie = this.#isGoalie(position) || stats?.type === 'goalie';
+    const kindSkater = this.#isSkater(position) || stats?.type === 'skater';
+
+    if (kindGoalie) {
       return this.#computeGoalieScore(stats);
     }
 
-    if (!this.#isSkater(position)) {
+    if (!kindSkater) {
       return null;
     }
 
@@ -84,7 +87,11 @@ class FantasyScoreCalculator {
   #computeGoalieScore(stats) {
     const toNum = (value) => {
       if (typeof value !== 'string') return Number(value) || 0;
-      const normalized = value.replace('%', '').replace(',', '.').replace('−', '-').trim();
+      const normalized = value
+        .replace('%', '')
+        .replace(',', '.')
+        .replace('−', '-')
+        .trim();
       const parsed = parseFloat(normalized);
       return Number.isFinite(parsed) ? parsed : 0;
     };
