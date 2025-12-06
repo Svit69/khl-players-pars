@@ -6,3 +6,5 @@ export const SELECTORS = {
   preferredTab: 'div.statTable-tabContent.fade.tabs_hide',
   matchesTable: 'div.matches_table, table.matches_table, #table_all_games, tbody#table_all_games',
 };
+
+export const SEASON_START_UTC = Date.UTC(2025, 8, 5); // 5 сентября 2025

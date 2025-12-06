@@ -1,4 +1,4 @@
-import { SELECTORS } from './constants.js';
+import { SELECTORS, SEASON_START_UTC } from './constants.js';
 
 class MatchTableParser {
   #fantasyCalculator;
@@ -8,10 +8,14 @@ class MatchTableParser {
   }
 
   parse(tableBody, $, position) {
-    if (!tableBody || tableBody.length === 0) return [];
+    if (!tableBody || tableBody.length === 0) {
+      return { rows: [], seasonFoAvg: null, lastFiveFoAvg: null };
+    }
 
     const rows = tableBody.find('tr');
-    if (!rows || rows.length < 2) return [];
+    if (!rows || rows.length < 2) {
+      return { rows: [], seasonFoAvg: null, lastFiveFoAvg: null };
+    }
 
     const goalieMode =
       this.#isGoalie(position) || this.#looksLikeGoalieRow(rows.eq(1));
@@ -23,7 +27,11 @@ class MatchTableParser {
     });
 
     const slice = [];
-    const limit = Math.min(rows.length - 1, 4);
+    const limit = Math.min(rows.length - 1, 5);
+    let seasonSum = 0;
+    let seasonCount = 0;
+    let lastFiveSum = 0;
+    let lastFiveCount = 0;
 
     for (let i = 1; i <= limit; i += 1) {
       const match = goalieMode
@@ -35,10 +43,24 @@ class MatchTableParser {
         match.fantasyScore = fo;
       }
 
+      const matchDate = this.#parseDateUtc(match.date);
+      if (matchDate && matchDate >= SEASON_START_UTC && typeof match.fantasyScore === 'number') {
+        seasonSum += match.fantasyScore;
+        seasonCount += 1;
+      }
+
+      if (i <= 5 && typeof match.fantasyScore === 'number') {
+        lastFiveSum += match.fantasyScore;
+        lastFiveCount += 1;
+      }
+
       slice.push(match);
     }
 
-    return slice;
+    const seasonFoAvg = seasonCount ? Number((seasonSum / seasonCount).toFixed(1)) : null;
+    const lastFiveFoAvg = lastFiveCount ? Number((lastFiveSum / lastFiveCount).toFixed(1)) : null;
+
+    return { rows: slice, seasonFoAvg, lastFiveFoAvg };
   }
 
   #mapSkaterRow(row, $) {
@@ -133,6 +155,34 @@ class MatchTableParser {
     if (!cells || cells.length === 0) return false;
     const count = cells.length;
     return count >= 15 && count <= 25;
+  }
+
+  #parseDateUtc(value) {
+    if (!value || typeof value !== 'string') return null;
+    const parts = value.trim().split(' ');
+    if (parts.length < 3) return null;
+    const day = parseInt(parts[0], 10);
+    const monthName = parts[1].toLowerCase();
+    const year = parseInt(parts[2], 10);
+    const monthMap = {
+      янв: 0,
+      фев: 1,
+      мар: 2,
+      апр: 3,
+      мая: 4,
+      май: 4,
+      июн: 5,
+      июл: 6,
+      авг: 7,
+      сен: 8,
+      окт: 9,
+      ноя: 10,
+      дек: 11,
+    };
+    const mkey = monthName.slice(0, 3);
+    const month = monthMap[mkey];
+    if (!Number.isFinite(day) || !Number.isFinite(year) || typeof month === 'undefined') return null;
+    return Date.UTC(year, month, day);
   }
 }
 

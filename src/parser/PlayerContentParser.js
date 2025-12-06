@@ -29,9 +29,11 @@ class PlayerContentParser extends AbstractContentParser {
     this.#logSelectors({
       position,
       hasAllGamesBody,
-      matchCount: matchStats.length,
-      types: matchStats.map((m) => m.type),
-      fantasySample: matchStats.map((m) => m.fantasyScore).slice(0, 3),
+      matchCount: matchStats.rows.length,
+      types: matchStats.rows.map((m) => m.type),
+      fantasySample: matchStats.rows.map((m) => m.fantasyScore).slice(0, 3),
+      seasonFoAvg: matchStats.seasonFoAvg,
+      lastFiveFoAvg: matchStats.lastFiveFoAvg,
     });
 
     if (!name) {
