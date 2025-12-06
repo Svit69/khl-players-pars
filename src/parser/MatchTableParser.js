@@ -14,10 +14,12 @@ class MatchTableParser {
     if (!rows || rows.length < 2) return [];
 
     const slice = [];
+    const goalieMode =
+      this.#isGoalie(position) || this.#looksLikeGoalieRow(rows.eq(1));
     const limit = Math.min(rows.length - 1, 4);
 
     for (let i = 1; i <= limit; i += 1) {
-      const match = this.#isGoalie(position)
+      const match = goalieMode
         ? this.#mapGoalieRow(rows.eq(i), $)
         : this.#mapSkaterRow(rows.eq(i), $);
       if (this.#fantasyCalculator) {
@@ -113,6 +115,11 @@ class MatchTableParser {
 
   #isGoalie(position) {
     return position && position.toLowerCase().includes('вратар');
+  }
+
+  #looksLikeGoalieRow(row) {
+    const cells = row.children('th,td');
+    return cells && cells.length > 0 && cells.length <= 20;
   }
 }
 
