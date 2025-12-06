@@ -13,19 +13,28 @@ class MatchTableParser {
     const rows = tableBody.find('tr');
     if (!rows || rows.length < 2) return [];
 
-    const slice = [];
     const goalieMode =
       this.#isGoalie(position) || this.#looksLikeGoalieRow(rows.eq(1));
+
+    console.log('[MatchTableParser] mode detection:', {
+      position,
+      goalieMode,
+      secondRowCells: rows.eq(1).children('th,td').length,
+    });
+
+    const slice = [];
     const limit = Math.min(rows.length - 1, 4);
 
     for (let i = 1; i <= limit; i += 1) {
       const match = goalieMode
         ? this.#mapGoalieRow(rows.eq(i), $)
         : this.#mapSkaterRow(rows.eq(i), $);
+
       if (this.#fantasyCalculator) {
         const fo = this.#fantasyCalculator.compute(position, match);
         match.fantasyScore = fo;
       }
+
       slice.push(match);
     }
 
@@ -42,6 +51,7 @@ class MatchTableParser {
       const linkText = cell.find('a').text().trim();
       return linkText || cell.text().trim();
     };
+
     return {
       date: readCell(0),
       teams: readCell(1),
@@ -80,6 +90,7 @@ class MatchTableParser {
       number: readCell(3),
       wins: readCell(4),
       losses: readCell(5),
+      // skip 6
       shots: readCell(7),
       goalsAgainst: readCell(8),
       saves: readCell(9),

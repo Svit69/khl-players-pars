@@ -1,16 +1,25 @@
 class FantasyScoreCalculator {
   compute(position, stats) {
-    const kindGoalie = this.#isGoalie(position) || stats?.type === 'goalie';
-    const kindSkater = this.#isSkater(position) || stats?.type === 'skater';
+    const isGoalie = this.#isGoalie(position) || stats?.type === 'goalie';
+    const isSkater = this.#isSkater(position) || stats?.type === 'skater';
 
-    if (kindGoalie) {
-      return this.#computeGoalieScore(stats);
+    if (isGoalie) {
+      const score = this.#computeGoalieScore(stats);
+      console.log('[FantasyScore] goalie', { position, stats, score });
+      return score;
     }
 
-    if (!kindSkater) {
+    if (!isSkater) {
+      console.log('[FantasyScore] unknown type', { position, stats });
       return null;
     }
 
+    const score = this.#computeSkaterScore(position, stats);
+    console.log('[FantasyScore] skater', { position, stats, score });
+    return score;
+  }
+
+  #computeSkaterScore(position, stats) {
     const normalized = this.#normalizeSkaterStats(stats);
     const weights = this.#weightsForSkater(position);
 
@@ -31,6 +40,51 @@ class FantasyScoreCalculator {
     score += (timeMinutes / 60) * weights.timeFactor;
 
     score += normalized.penaltyMinutes * weights.penalty;
+
+    return this.#clamp(Math.round(score));
+  }
+
+  #computeGoalieScore(stats) {
+    const toNum = (value) => {
+      if (typeof value !== 'string') return Number(value) || 0;
+      const normalized = value
+        .replace('%', '')
+        .replace(',', '.')
+        .replace('−', '-')
+        .trim();
+      const parsed = parseFloat(normalized);
+      return Number.isFinite(parsed) ? parsed : 0;
+    };
+
+    const wins = toNum(stats.wins);
+    const losses = toNum(stats.losses);
+    const goalsAgainst = toNum(stats.goalsAgainst);
+    const saves = toNum(stats.saves);
+    const savePct = toNum(stats.savePercentage);
+    const shutouts = toNum(stats.shutouts);
+    const penalties = toNum(stats.penaltyMinutes);
+    const goals = toNum(stats.goals);
+    const assists = toNum(stats.assists);
+    const timeOnIce = stats.timeOnIce || '';
+
+    const timeMinutes = this.#parseTimeToMinutes(timeOnIce);
+    if (timeMinutes === 0) {
+      return null;
+    }
+
+    let score = 0;
+
+    if (shutouts >= 1) score += 40;
+    if (savePct > 90) score += 5;
+    if (savePct > 94) score += 10;
+    if (wins >= 1) score += 20;
+    if (losses >= 1) score -= 8;
+
+    score += goalsAgainst * -3.6;
+    score += saves * 1;
+    score += penalties * -2;
+    score += (goals + assists) * 15;
+    // время отдельно не указано в формуле для вратарей
 
     return this.#clamp(Math.round(score));
   }
@@ -82,51 +136,6 @@ class FantasyScoreCalculator {
       timeFactor: 50,
       penalty: -4.2,
     };
-  }
-
-  #computeGoalieScore(stats) {
-    const toNum = (value) => {
-      if (typeof value !== 'string') return Number(value) || 0;
-      const normalized = value
-        .replace('%', '')
-        .replace(',', '.')
-        .replace('−', '-')
-        .trim();
-      const parsed = parseFloat(normalized);
-      return Number.isFinite(parsed) ? parsed : 0;
-    };
-
-    const wins = toNum(stats.wins);
-    const losses = toNum(stats.losses);
-    const goalsAgainst = toNum(stats.goalsAgainst);
-    const saves = toNum(stats.saves);
-    const savePct = toNum(stats.savePercentage);
-    const shutouts = toNum(stats.shutouts);
-    const penalties = toNum(stats.penaltyMinutes);
-    const goals = toNum(stats.goals);
-    const assists = toNum(stats.assists);
-    const timeOnIce = stats.timeOnIce || '';
-
-    const timeMinutes = this.#parseTimeToMinutes(timeOnIce);
-    if (timeMinutes === 0) {
-      return null;
-    }
-
-    let score = 0;
-
-    if (shutouts >= 1) score += 40;
-    if (savePct > 90) score += 5;
-    if (savePct > 94) score += 10;
-    if (wins >= 1) score += 20;
-    if (losses >= 1) score -= 8;
-
-    score += goalsAgainst * -3.6;
-    score += saves * 1;
-    score += penalties * -2;
-    score += (goals + assists) * 15;
-    score += (timeMinutes / 60) * 0; // уточнений нет, оставляем 0 для времени у вратарей кроме условий выше
-
-    return this.#clamp(Math.round(score));
   }
 
   #parseTimeToMinutes(value) {
