@@ -33,7 +33,7 @@ class MatchTableParser {
     let lastFiveSum = 0;
     let lastFiveCount = 0;
 
-    for (let i = 1; i <= limit; i += 1) {
+    for (let i = 1; i < rows.length; i += 1) {
       const match = goalieMode
         ? this.#mapGoalieRow(rows.eq(i), $)
         : this.#mapSkaterRow(rows.eq(i), $);
@@ -54,12 +54,14 @@ class MatchTableParser {
         seasonCount += 1;
       }
 
-      if (i <= 5 && typeof match.fantasyScore === 'number' && !match.hasDash) {
+      if (i <= limit && typeof match.fantasyScore === 'number' && !match.hasDash) {
         lastFiveSum += match.fantasyScore;
         lastFiveCount += 1;
       }
 
-      slice.push(match);
+      if (i <= limit) {
+        slice.push(match);
+      }
     }
 
     const seasonFoAvg = seasonCount ? Number((seasonSum / seasonCount).toFixed(1)) : null;
