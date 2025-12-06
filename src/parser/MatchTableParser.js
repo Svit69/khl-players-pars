@@ -17,14 +17,20 @@ class MatchTableParser {
     const limit = Math.min(rows.length - 1, 4);
 
     for (let i = 1; i <= limit; i += 1) {
-      const match = this.#mapRow(rows.eq(i), $, position);
+      const match = this.#isGoalie(position)
+        ? this.#mapGoalieRow(rows.eq(i), $)
+        : this.#mapSkaterRow(rows.eq(i), $);
+      if (this.#fantasyCalculator) {
+        const fo = this.#fantasyCalculator.compute(position, match);
+        match.fantasyScore = fo;
+      }
       slice.push(match);
     }
 
     return slice;
   }
 
-  #mapRow(row, $, position) {
+  #mapSkaterRow(row, $) {
     const cells = row.children('th,td');
     const readCell = (idx) =>
       cells && cells.eq(idx).length > 0 ? cells.eq(idx).text().trim() : '';
@@ -34,8 +40,7 @@ class MatchTableParser {
       const linkText = cell.find('a').text().trim();
       return linkText || cell.text().trim();
     };
-
-    const match = {
+    return {
       date: readCell(0),
       teams: readCell(1),
       score: readScore(),
@@ -51,14 +56,40 @@ class MatchTableParser {
       blockedShots: readCell(33),
       takeaways: readCell(35),
       interceptions: readCell(36),
+      type: 'skater',
+    };
+  }
+
+  #mapGoalieRow(row, $) {
+    const cells = row.children('th,td');
+    const readCell = (idx) =>
+      cells && cells.eq(idx).length > 0 ? cells.eq(idx).text().trim() : '';
+    const readScore = () => {
+      if (!cells || cells.eq(2).length === 0) return '';
+      const cell = cells.eq(2);
+      const linkText = cell.find('a').text().trim();
+      return linkText || cell.text().trim();
     };
 
-    if (this.#fantasyCalculator) {
-      const fo = this.#fantasyCalculator.compute(position, match);
-      match.fantasyScore = fo;
-    }
-
-    return match;
+    return {
+      date: readCell(0),
+      teams: readCell(1),
+      score: readScore(),
+      number: readCell(3),
+      wins: readCell(4),
+      losses: readCell(5),
+      shots: readCell(7),
+      goalsAgainst: readCell(8),
+      saves: readCell(9),
+      savePercentage: readCell(10),
+      goalsAgainstAverage: readCell(11),
+      goals: readCell(12),
+      assists: readCell(13),
+      shutouts: readCell(14),
+      penaltyMinutes: readCell(15),
+      timeOnIce: readCell(16),
+      type: 'goalie',
+    };
   }
 
   findTableBody(matchesContainer, $) {
@@ -78,6 +109,10 @@ class MatchTableParser {
 
     const fallback = $('tbody#table_all_games').first();
     return fallback && fallback.length > 0 ? fallback : null;
+  }
+
+  #isGoalie(position) {
+    return position && position.toLowerCase().includes('вратар');
   }
 }
 

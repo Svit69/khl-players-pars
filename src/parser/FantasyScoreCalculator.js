@@ -1,11 +1,15 @@
 class FantasyScoreCalculator {
   compute(position, stats) {
+    if (this.#isGoalie(position)) {
+      return this.#computeGoalieScore(stats);
+    }
+
     if (!this.#isSkater(position)) {
       return null;
     }
 
-    const normalized = this.#normalizeStats(stats);
-    const weights = this.#weightsFor(position);
+    const normalized = this.#normalizeSkaterStats(stats);
+    const weights = this.#weightsForSkater(position);
 
     let score = 0;
 
@@ -28,7 +32,7 @@ class FantasyScoreCalculator {
     return this.#clamp(Math.round(score));
   }
 
-  #normalizeStats(stats) {
+  #normalizeSkaterStats(stats) {
     const toNum = (value) => {
       if (typeof value !== 'string') return Number(value) || 0;
       const normalized = value.replace(',', '.').replace('−', '-').trim();
@@ -49,7 +53,7 @@ class FantasyScoreCalculator {
     };
   }
 
-  #weightsFor(position) {
+  #weightsForSkater(position) {
     const isDefender = position && position.toLowerCase().includes('защит');
 
     if (isDefender) {
@@ -77,6 +81,47 @@ class FantasyScoreCalculator {
     };
   }
 
+  #computeGoalieScore(stats) {
+    const toNum = (value) => {
+      if (typeof value !== 'string') return Number(value) || 0;
+      const normalized = value.replace('%', '').replace(',', '.').replace('−', '-').trim();
+      const parsed = parseFloat(normalized);
+      return Number.isFinite(parsed) ? parsed : 0;
+    };
+
+    const wins = toNum(stats.wins);
+    const losses = toNum(stats.losses);
+    const goalsAgainst = toNum(stats.goalsAgainst);
+    const saves = toNum(stats.saves);
+    const savePct = toNum(stats.savePercentage);
+    const shutouts = toNum(stats.shutouts);
+    const penalties = toNum(stats.penaltyMinutes);
+    const goals = toNum(stats.goals);
+    const assists = toNum(stats.assists);
+    const timeOnIce = stats.timeOnIce || '';
+
+    const timeMinutes = this.#parseTimeToMinutes(timeOnIce);
+    if (timeMinutes === 0) {
+      return null;
+    }
+
+    let score = 0;
+
+    if (shutouts >= 1) score += 40;
+    if (savePct > 90) score += 5;
+    if (savePct > 94) score += 10;
+    if (wins >= 1) score += 20;
+    if (losses >= 1) score -= 8;
+
+    score += goalsAgainst * -3.6;
+    score += saves * 1;
+    score += penalties * -2;
+    score += (goals + assists) * 15;
+    score += (timeMinutes / 60) * 0; // уточнений нет, оставляем 0 для времени у вратарей кроме условий выше
+
+    return this.#clamp(Math.round(score));
+  }
+
   #parseTimeToMinutes(value) {
     if (!value || typeof value !== 'string') return 0;
     const parts = value.split(':');
@@ -95,6 +140,10 @@ class FantasyScoreCalculator {
 
   #isSkater(position) {
     return position && position.toLowerCase() !== 'вратарь';
+  }
+
+  #isGoalie(position) {
+    return position && position.toLowerCase().includes('вратар');
   }
 }
 
