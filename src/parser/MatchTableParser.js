@@ -44,12 +44,17 @@ class MatchTableParser {
       }
 
       const matchDate = this.#parseDateUtc(match.date);
-      if (matchDate && matchDate >= SEASON_START_UTC && typeof match.fantasyScore === 'number') {
+      if (
+        matchDate &&
+        matchDate >= SEASON_START_UTC &&
+        typeof match.fantasyScore === 'number' &&
+        !match.hasDash
+      ) {
         seasonSum += match.fantasyScore;
         seasonCount += 1;
       }
 
-      if (i <= 5 && typeof match.fantasyScore === 'number') {
+      if (i <= 5 && typeof match.fantasyScore === 'number' && !match.hasDash) {
         lastFiveSum += match.fantasyScore;
         lastFiveCount += 1;
       }
@@ -91,6 +96,7 @@ class MatchTableParser {
       takeaways: readCell(35),
       interceptions: readCell(36),
       type: 'skater',
+      hasDash: this.#rowHasDash(cells),
     };
   }
 
@@ -124,6 +130,7 @@ class MatchTableParser {
       penaltyMinutes: readCell(15),
       timeOnIce: readCell(16),
       type: 'goalie',
+      hasDash: this.#rowHasDash(cells),
     };
   }
 
@@ -155,6 +162,16 @@ class MatchTableParser {
     if (!cells || cells.length === 0) return false;
     const count = cells.length;
     return count >= 15 && count <= 25;
+  }
+
+  #rowHasDash(cells) {
+    return cells
+      .map((_, el) => (el && el.children ? el.children[0]?.data || '' : ''))
+      .get()
+      .some((txt) => {
+        const trimmed = String(txt).trim();
+        return trimmed === '-' || trimmed === '—';
+      });
   }
 
   #parseDateUtc(value) {
