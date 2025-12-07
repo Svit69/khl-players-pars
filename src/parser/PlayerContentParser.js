@@ -16,6 +16,10 @@ class PlayerContentParser extends AbstractContentParser {
     const $ = cheerio.load(html);
     const name = $(SELECTORS.name).text().trim();
     const position = $(SELECTORS.position).text().trim();
+    const clubLogo = $(SELECTORS.clubLogo).attr('src') || '/assets/default-logo.svg';
+    const ageText = $(SELECTORS.age).text().trim();
+    const nationality = $(SELECTORS.nationality).text().trim();
+    const age = this.#parseAge(ageText);
 
     const statsBlock = $(SELECTORS.statsContainer).first();
     const preferredTab = statsBlock.find(SELECTORS.preferredTab).first();
@@ -43,6 +47,9 @@ class PlayerContentParser extends AbstractContentParser {
     return {
       name,
       position: position || 'позиция не найдена',
+      clubLogo,
+      age,
+      nationality: nationality || '—',
       hasAllGamesBody,
       matchStats,
     };
@@ -56,6 +63,12 @@ class PlayerContentParser extends AbstractContentParser {
       hasAllGamesBody,
       matchCount,
     });
+  }
+
+  #parseAge(raw) {
+    if (!raw) return 18;
+    const num = parseInt(raw, 10);
+    return Number.isFinite(num) ? num : 18;
   }
 }
 

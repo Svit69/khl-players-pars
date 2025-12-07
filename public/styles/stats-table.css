@@ -50,3 +50,7 @@
   font-size: 14px;
   color: var(--text);
 }
+
+.result__summary {
+  margin-bottom: 8px;
+}
