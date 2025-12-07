@@ -20,26 +20,14 @@ export default class ResultView {
     const profile = this.#renderProfile(text);
     if (profile) this.#container.appendChild(profile);
 
-    const name = text?.name || text;
-    const position = text?.position ? ` — ${text.position}` : '';
-    const allGames =
-      text?.hasAllGamesBody !== undefined
-        ? ` | tbody#table_all_games: ${text.hasAllGamesBody ? 'найден' : 'не найден'}`
-        : '';
-
-    const summaryTop = document.createElement('div');
-    summaryTop.className = 'result__summary';
-    summaryTop.textContent = `Спарсили: ${name}${position}${allGames}`;
-    this.#container.appendChild(summaryTop);
-
     if (Array.isArray(text?.matchStats?.rows) && text.matchStats.rows.length) {
+      const digest = this.#renderDigest(text.matchStats);
+      if (digest) {
+        this.#container.appendChild(digest);
+      }
       const table = this.#statsRenderer.render(text.matchStats.rows, text?.position || '');
       if (table) {
         this.#container.appendChild(table);
-      }
-      const summary = this.#renderSummary(text.matchStats);
-      if (summary) {
-        this.#container.appendChild(summary);
       }
     }
   }
@@ -99,25 +87,52 @@ export default class ResultView {
   }
 
   #renderSummary(matchStats) {
-    const { seasonFoAvg, lastFiveFoAvg } = matchStats;
-    if (seasonFoAvg === null && lastFiveFoAvg === null) return null;
-    const wrap = document.createElement('div');
-    wrap.className = 'stats-summary';
-    const items = [];
-    if (lastFiveFoAvg !== null) {
-      items.push(`Среднее ФО за последние 5 матчей: ${lastFiveFoAvg}`);
-    }
-    if (seasonFoAvg !== null) {
-      items.push(`Среднее ФО за сезон: ${seasonFoAvg}`);
-    }
-    wrap.textContent = items.join(' | ');
-    return wrap;
+    // Deprecated
+    return null;
   }
 
   #resolveFlagSrc(nationality) {
     if (!nationality) return '/flags/default.svg';
     const slug = nationality.trim().toLowerCase().replace(/\s+/g, '-');
-    return `/flags/${slug}.svg`;
+    const codeMap = {
+      россия: 'russia',
+      рф: 'russia',
+      canada: 'canada',
+      канада: 'canada',
+      usa: 'usa',
+      сша: 'usa',
+      финляндия: 'finland',
+      finland: 'finland',
+      sweden: 'sweden',
+      швеция: 'sweden',
+      латвия: 'latvia',
+      latvia: 'latvia',
+      беларусь: 'belarus',
+      belarus: 'belarus',
+      чехия: 'czech',
+      slovakia: 'slovakia',
+      словакия: 'slovakia',
+      germany: 'germany',
+      германия: 'germany',
+      kazakhstan: 'kazakhstan',
+      казахстан: 'kazakhstan',
+      switzerland: 'switzerland',
+      швейцария: 'switzerland',
+      norway: 'norway',
+      норвегия: 'norway',
+      denmark: 'denmark',
+      дания: 'denmark',
+      france: 'france',
+      франция: 'france',
+      austria: 'austria',
+      австрия: 'austria',
+      china: 'china',
+      китай: 'china',
+      slovenia: 'slovenia',
+      croatia: 'croatia',
+    };
+    const key = codeMap[slug] || codeMap[nationality.toLowerCase()] || slug;
+    return `/assets/flags/icon-${key}.png`;
   }
 
   #ageSuffix(age) {
@@ -126,5 +141,38 @@ export default class ResultView {
     if (mod10 === 1 && mod100 !== 11) return 'год';
     if (mod10 >= 2 && mod10 <= 4 && !(mod100 >= 12 && mod100 <= 14)) return 'года';
     return 'лет';
+  }
+
+  #renderDigest(matchStats) {
+    const { lastFiveFoAvg, lastFifteenFoAvg, seasonFoAvg } = matchStats;
+    const items = [
+      { label: 'Посл. 5', value: lastFiveFoAvg },
+      { label: 'Посл. 15', value: lastFifteenFoAvg },
+      { label: 'Сезон', value: seasonFoAvg },
+    ].filter((i) => i.value !== null && typeof i.value !== 'undefined');
+
+    if (!items.length) return null;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'stats-digest';
+
+    items.forEach((item) => {
+      const box = document.createElement('div');
+      box.className = 'stats-digest__item';
+
+      const label = document.createElement('span');
+      label.className = 'stats-digest__label';
+      label.textContent = item.label;
+
+      const val = document.createElement('span');
+      val.className = 'stats-digest__value';
+      val.textContent = item.value;
+
+      box.appendChild(label);
+      box.appendChild(val);
+      wrap.appendChild(box);
+    });
+
+    return wrap;
   }
 }

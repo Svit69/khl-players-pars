@@ -38,6 +38,7 @@ class PlayerContentParser extends AbstractContentParser {
       fantasySample: matchStats.rows.map((m) => m.fantasyScore).slice(0, 3),
       seasonFoAvg: matchStats.seasonFoAvg,
       lastFiveFoAvg: matchStats.lastFiveFoAvg,
+      lastFifteenFoAvg: matchStats.lastFifteenFoAvg,
     });
 
     if (!name) {

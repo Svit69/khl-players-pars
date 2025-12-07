@@ -27,11 +27,13 @@ class MatchTableParser {
     });
 
     const slice = [];
-    const limit = Math.min(rows.length - 1, 5);
+    const limit = Math.min(rows.length - 1, 15); // берем больше для средней 15
     let seasonSum = 0;
     let seasonCount = 0;
     let lastFiveSum = 0;
     let lastFiveCount = 0;
+    let lastFifteenSum = 0;
+    let lastFifteenCount = 0;
 
     for (let i = 1; i < rows.length; i += 1) {
       const match = goalieMode
@@ -54,20 +56,33 @@ class MatchTableParser {
         seasonCount += 1;
       }
 
-      if (i <= limit && typeof match.fantasyScore === 'number' && !match.hasDash) {
+      if (i <= 5 && typeof match.fantasyScore === 'number' && !match.hasDash) {
         lastFiveSum += match.fantasyScore;
         lastFiveCount += 1;
       }
 
-      if (i <= limit) {
+      if (i <= 15 && typeof match.fantasyScore === 'number' && !match.hasDash) {
+        lastFifteenSum += match.fantasyScore;
+        lastFifteenCount += 1;
+      }
+
+      if (i <= 5) {
         slice.push(match);
       }
     }
 
     const seasonFoAvg = seasonCount ? Number((seasonSum / seasonCount).toFixed(1)) : null;
     const lastFiveFoAvg = lastFiveCount ? Number((lastFiveSum / lastFiveCount).toFixed(1)) : null;
+    const lastFifteenFoAvg = lastFifteenCount
+      ? Number((lastFifteenSum / lastFifteenCount).toFixed(1))
+      : null;
 
-    return { rows: slice, seasonFoAvg, lastFiveFoAvg };
+    return {
+      rows: slice,
+      seasonFoAvg,
+      lastFiveFoAvg,
+      lastFifteenFoAvg,
+    };
   }
 
   #mapSkaterRow(row, $) {

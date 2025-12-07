@@ -54,3 +54,33 @@
 .result__summary {
   margin-bottom: 8px;
 }
+
+.stats-digest {
+  margin: 10px 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.stats-digest__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stats-digest__label {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.stats-digest__value {
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(72, 207, 174, 0.12);
+  color: var(--text);
+  font-weight: 800;
+}

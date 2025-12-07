@@ -14,3 +14,38 @@ export const SELECTORS = {
 };
 
 export const SEASON_START_UTC = Date.UTC(2025, 8, 5); // 5 сентября 2025
+
+export const FLAG_MAP = {
+  россия: 'ru',
+  рф: 'ru',
+  canada: 'ca',
+  канада: 'ca',
+  usa: 'us',
+  сша: 'us',
+  финляндия: 'fi',
+  sweden: 'se',
+  швеция: 'se',
+  латвия: 'lv',
+  латvia: 'lv',
+  беларусь: 'by',
+  belarus: 'by',
+  чехия: 'cz',
+  slovakia: 'sk',
+  словакия: 'sk',
+  germany: 'de',
+  германия: 'de',
+  kazakhstan: 'kz',
+  казахстан: 'kz',
+  switzerland: 'ch',
+  швейцария: 'ch',
+  norway: 'no',
+  норвегия: 'no',
+  denmark: 'dk',
+  дания: 'dk',
+  france: 'fr',
+  франция: 'fr',
+  austria: 'at',
+  австрия: 'at',
+  china: 'cn',
+  китай: 'cn',
+};
