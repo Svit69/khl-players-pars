@@ -21,7 +21,6 @@ class MatchTableParser {
       this.#isGoalie(position) || this.#looksLikeGoalieRow(rows.eq(1));
 
     const slice = [];
-    const limit = Math.min(rows.length - 1, 15); // берем больше для средней 15
     let seasonSum = 0;
     let seasonCount = 0;
     let lastFiveSum = 0;
@@ -81,7 +80,7 @@ class MatchTableParser {
     };
   }
 
-  #mapSkaterRow(row, $) {
+  #mapSkaterRow(row) {
     const cells = row.children('th,td');
     const readCell = (idx) =>
       cells && cells.eq(idx).length > 0 ? cells.eq(idx).text().trim() : '';
@@ -113,7 +112,7 @@ class MatchTableParser {
     };
   }
 
-  #mapGoalieRow(row, $) {
+  #mapGoalieRow(row) {
     const cells = row.children('th,td');
     const readCell = (idx) =>
       cells && cells.eq(idx).length > 0 ? cells.eq(idx).text().trim() : '';
