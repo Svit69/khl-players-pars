@@ -1,5 +1,6 @@
 import renderProfile from './renderProfile.js';
 import renderDigest from './renderDigest.js';
+import renderTours from './renderTours.js';
 
 export default class ResultView {
   #container;
@@ -26,6 +27,9 @@ export default class ResultView {
     if (Array.isArray(data?.matchStats?.rows) && data.matchStats.rows.length) {
       const digest = renderDigest(data.matchStats);
       if (digest) this.#container.appendChild(digest);
+
+      const tours = renderTours(data.matchStats.tours);
+      if (tours) this.#container.appendChild(tours);
 
       const table = this.#statsRenderer.render(data.matchStats.rows, data?.position || '');
       if (table) this.#container.appendChild(table);
