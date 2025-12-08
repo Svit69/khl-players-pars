@@ -30,17 +30,6 @@ class PlayerContentParser extends AbstractContentParser {
     const hasAllGamesBody = tableBody && tableBody.length > 0;
     const matchStats = this.#matchTableParser.parse(tableBody, $, position);
 
-    this.#logSelectors({
-      position,
-      hasAllGamesBody,
-      matchCount: matchStats.rows.length,
-      types: matchStats.rows.map((m) => m.type),
-      fantasySample: matchStats.rows.map((m) => m.fantasyScore).slice(0, 3),
-      seasonFoAvg: matchStats.seasonFoAvg,
-      lastFiveFoAvg: matchStats.lastFiveFoAvg,
-      lastFifteenFoAvg: matchStats.lastFifteenFoAvg,
-    });
-
     if (!name) {
       throw new Error('Не удалось найти имя игрока по заданному селектору');
     }

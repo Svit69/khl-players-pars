@@ -5,17 +5,14 @@ class FantasyScoreCalculator {
 
     if (isGoalie) {
       const score = this.#computeGoalieScore(stats);
-      console.log('[FantasyScore] goalie', { position, stats, score });
       return score;
     }
 
     if (!isSkater) {
-      console.log('[FantasyScore] unknown type', { position, stats });
       return null;
     }
 
     const score = this.#computeSkaterScore(position, stats);
-    console.log('[FantasyScore] skater', { position, stats, score });
     return score;
   }
 

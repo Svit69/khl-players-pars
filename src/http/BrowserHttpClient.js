@@ -3,6 +3,10 @@ import AbstractHttpClient from './AbstractHttpClient.js';
 
 class BrowserHttpClient extends AbstractHttpClient {
   #defaultHeaders;
+  #maxConcurrent;
+  #activeRequests;
+  #queue;
+  #timeoutMs;
 
   constructor() {
     super();
@@ -17,6 +21,10 @@ class BrowserHttpClient extends AbstractHttpClient {
       Referer: 'https://www.khl.ru/',
       Connection: 'keep-alive',
     };
+    this.#maxConcurrent = 4;
+    this.#activeRequests = 0;
+    this.#queue = [];
+    this.#timeoutMs = 10000;
   }
 
   async fetchHtml(url) {
@@ -24,13 +32,15 @@ class BrowserHttpClient extends AbstractHttpClient {
     let cookieJar = '';
 
     for (let attempt = 0; attempt < 5; attempt += 1) {
-      const response = await fetch(currentUrl, {
-        headers: {
-          ...this.#defaultHeaders,
-          ...(cookieJar ? { Cookie: cookieJar } : {}),
-        },
-        redirect: 'manual',
-      });
+      const response = await this.#withConcurrency(() =>
+        this.#fetchWithTimeout(currentUrl, {
+          headers: {
+            ...this.#defaultHeaders,
+            ...(cookieJar ? { Cookie: cookieJar } : {}),
+          },
+          redirect: 'manual',
+        }),
+      );
 
       this.#updateCookieJar(response, (newCookies) => {
         cookieJar = cookieJar ? `${cookieJar}; ${newCookies}` : newCookies;
@@ -73,6 +83,31 @@ class BrowserHttpClient extends AbstractHttpClient {
 
   #isRedirect(status) {
     return status >= 300 && status < 400;
+  }
+
+  async #withConcurrency(task) {
+    if (this.#activeRequests >= this.#maxConcurrent) {
+      await new Promise((resolve) => this.#queue.push(resolve));
+    }
+    this.#activeRequests += 1;
+    try {
+      const result = await task();
+      return result;
+    } finally {
+      this.#activeRequests -= 1;
+      const next = this.#queue.shift();
+      if (next) next();
+    }
+  }
+
+  async #fetchWithTimeout(url, options) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), this.#timeoutMs);
+    try {
+      return await fetch(url, { ...options, signal: controller.signal });
+    } finally {
+      clearTimeout(id);
+    }
   }
 }
 

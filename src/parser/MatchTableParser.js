@@ -20,12 +20,6 @@ class MatchTableParser {
     const goalieMode =
       this.#isGoalie(position) || this.#looksLikeGoalieRow(rows.eq(1));
 
-    console.log('[MatchTableParser] mode detection:', {
-      position,
-      goalieMode,
-      secondRowCells: rows.eq(1).children('th,td').length,
-    });
-
     const slice = [];
     const limit = Math.min(rows.length - 1, 15); // берем больше для средней 15
     let seasonSum = 0;
