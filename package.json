@@ -8,7 +8,9 @@
     "start": "echo \"Serverless build: используйте 'npx vercel dev' для локального запуска\"",
     "dev": "npx vercel dev",
     "build": "echo \"no build step\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "set NODE_OPTIONS=--experimental-vm-modules&& npx jest",
+    "lint": "npx eslint .",
+    "format": "npx prettier -w \"**/*.{js,css,html,json,md}\""
   },
   "keywords": [],
   "author": "",
@@ -16,5 +18,12 @@
   "dependencies": {
     "cheerio": "^1.1.2",
     "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "eslint": "^9.13.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.3.3"
   }
 }

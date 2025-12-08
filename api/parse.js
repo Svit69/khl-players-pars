@@ -4,11 +4,14 @@ import {
   PlayerParsingService,
   UrlValidator,
 } from '../src/index.js';
+import PlayerCache from '../src/cache/PlayerCache.js';
+import { validateParseRequest } from '../src/validation/requestValidator.js';
 
 const validator = new UrlValidator();
 const httpClient = new BrowserHttpClient();
 const parser = new PlayerContentParser();
 const parsingService = new PlayerParsingService(validator, httpClient, parser);
+const cache = new PlayerCache(60, 60); // TTL 60s, cleanup 60s
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -18,7 +21,19 @@ export default async function handler(req, res) {
 
   try {
     const payload = await readJsonBody(req);
-    const result = await parsingService.extractPlayerInfo(payload.url);
+    const { url, playerId } = validateParseRequest(payload);
+
+    const cached = cache.get(playerId);
+    if (cached) {
+      return res.status(200).json({ success: true, data: cached });
+    }
+
+    const result = await parsingService.extractPlayerInfo(url);
+
+    if (result) {
+      cache.set(playerId, result);
+    }
+
     return res.status(200).json({ success: true, data: result });
   } catch (error) {
     const status = error.message?.toLowerCase().includes('ссылка') ? 400 : 400;
