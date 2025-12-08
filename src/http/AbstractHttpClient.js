@@ -1,7 +1,8 @@
-class AbstractHttpClient {
+﻿class AbstractHttpClient {
   async fetchHtml(_url) {
-    throw new Error('Метод fetchHtml должен быть реализован в наследнике');
+    throw new Error('fetchHtml must be implemented in a subclass');
   }
 }
 
 export default AbstractHttpClient;
+

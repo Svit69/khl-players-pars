@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Парсинг игроков КХЛ</title>
+    <title>Парсер игроков КХЛ</title>
     <link rel="stylesheet" href="styles/base.css" />
     <link rel="stylesheet" href="styles/form.css" />
     <link rel="stylesheet" href="styles/result.css" />
@@ -16,8 +16,8 @@
         <div class="card__header">
           <h1>Парсер игроков КХЛ</h1>
           <p>
-            Вставьте ссылку вида <strong>https://www.khl.ru/players/...</strong> и
-            получите имя и позицию игрока по заданным селекторам.
+            Вставьте ссылку вида <strong>https://www.khl.ru/players/...</strong> и получите имя, позицию и ключевые
+            метрики по заданным селекторам.
           </p>
         </div>
         <form id="parser-form" class="form" novalidate>
@@ -32,13 +32,14 @@
             />
             <button type="submit" aria-label="Подтвердить">Подтвердить</button>
           </div>
-          <p class="form__hint">Проверяем, что ссылка ведёт на раздел players.</p>
+          <p class="form__hint">Проверяем, что ссылка ведет на раздел players.</p>
         </form>
         <div id="result" class="result" role="status" aria-live="polite">
-          <span class="result__placeholder">Здесь появится результат парсинга</span>
+          <span class="result__placeholder">Здесь появится ответ парсера.</span>
         </div>
       </section>
     </main>
     <script type="module" src="js/main.js"></script>
   </body>
 </html>
+

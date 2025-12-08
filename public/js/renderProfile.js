@@ -1,4 +1,4 @@
-import { resolveFlagSrc, ageSuffix } from './utils.js';
+﻿import { resolveFlagSrc, ageSuffix } from './utils.js';
 
 export default function renderProfile(data) {
   const wrap = document.createElement('div');
@@ -8,7 +8,7 @@ export default function renderProfile(data) {
   logoBox.className = 'profile__logo';
   const logoImg = document.createElement('img');
   logoImg.src = data?.clubLogo || '/assets/default-logo.svg';
-  logoImg.alt = 'Лого клуба';
+  logoImg.alt = 'Логотип клуба';
   logoBox.appendChild(logoImg);
   wrap.appendChild(logoBox);
 
@@ -35,7 +35,7 @@ export default function renderProfile(data) {
   const nationWrap = document.createElement('span');
   const flagImg = document.createElement('img');
   flagImg.className = 'profile__flag';
-  flagImg.alt = data?.nationality || 'национальность';
+  flagImg.alt = data?.nationality || 'Нация';
   flagImg.src = resolveFlagSrc(data?.nationality);
   nationWrap.appendChild(flagImg);
   const nationText = document.createElement('span');
@@ -47,3 +47,4 @@ export default function renderProfile(data) {
   wrap.appendChild(info);
   return wrap;
 }
+

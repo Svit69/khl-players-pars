@@ -1,19 +1,15 @@
-class FantasyScoreCalculator {
+﻿class FantasyScoreCalculator {
   compute(position, stats) {
     const isGoalie = this.#isGoalie(position) || stats?.type === 'goalie';
     const isSkater = this.#isSkater(position) || stats?.type === 'skater';
 
     if (isGoalie) {
-      const score = this.#computeGoalieScore(stats);
-      return score;
+      return this.#computeGoalieScore(stats);
     }
 
-    if (!isSkater) {
-      return null;
-    }
+    if (!isSkater) return null;
 
-    const score = this.#computeSkaterScore(position, stats);
-    return score;
+    return this.#computeSkaterScore(position, stats);
   }
 
   #computeSkaterScore(position, stats) {
@@ -47,7 +43,8 @@ class FantasyScoreCalculator {
       const normalized = value
         .replace('%', '')
         .replace(',', '.')
-        .replace('−', '-')
+        .replace(/—/g, '-')
+        .replace(/–/g, '-')
         .trim();
       const parsed = parseFloat(normalized);
       return Number.isFinite(parsed) ? parsed : 0;
@@ -81,7 +78,6 @@ class FantasyScoreCalculator {
     score += saves * 1;
     score += penalties * -2;
     score += (goals + assists) * 15;
-    // время отдельно не указано в формуле для вратарей
 
     return this.#clamp(Math.round(score));
   }
@@ -89,7 +85,12 @@ class FantasyScoreCalculator {
   #normalizeSkaterStats(stats) {
     const toNum = (value) => {
       if (typeof value !== 'string') return Number(value) || 0;
-      const normalized = value.replace(',', '.').replace('−', '-').trim();
+      const normalized = value
+        .replace(',', '.')
+        .replace(/—/g, '-')
+        .replace(/–/g, '-')
+        .trim();
+      if (normalized === '-' || normalized === '') return 0;
       const parsed = parseFloat(normalized);
       return Number.isFinite(parsed) ? parsed : 0;
     };
@@ -152,12 +153,13 @@ class FantasyScoreCalculator {
   }
 
   #isSkater(position) {
-    return position && position.toLowerCase() !== 'вратарь';
+    return position && !this.#isGoalie(position);
   }
 
   #isGoalie(position) {
-    return position && position.toLowerCase().includes('вратар');
+    return position && position.toLowerCase().includes('врат');
   }
 }
 
 export default FantasyScoreCalculator;
+

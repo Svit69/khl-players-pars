@@ -1,4 +1,4 @@
-export function extractPlayerId(url) {
+﻿export function extractPlayerId(url) {
   try {
     const parsed = new URL(url);
     const parts = parsed.pathname.split('/').filter(Boolean);
@@ -12,15 +12,16 @@ export function extractPlayerId(url) {
 
 export function validateParseRequest(body) {
   if (!body || typeof body.url !== 'string') {
-    throw new Error('Нужно передать поле url строкой');
+    throw new Error('Некорректный запрос: ожидается поле url.');
   }
   const url = body.url.trim();
   if (!url) {
-    throw new Error('Ссылка не должна быть пустой');
+    throw new Error('Ссылка не может быть пустой.');
   }
   const playerId = extractPlayerId(url);
   if (!playerId) {
-    throw new Error('Некорректная ссылка на игрока');
+    throw new Error('Ссылка не содержит идентификатор игрока.');
   }
   return { url, playerId };
 }
+

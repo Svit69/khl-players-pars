@@ -1,4 +1,4 @@
-export default class ApiClient {
+﻿export default class ApiClient {
   async requestPlayerParsing(playerUrl) {
     const response = await fetch('/api/parse', {
       method: 'POST',
@@ -9,9 +9,10 @@ export default class ApiClient {
     const payload = await response.json();
 
     if (!payload.success) {
-      throw new Error(payload.message || 'Ошибка при обработке запроса');
+      throw new Error(payload.message || 'Не удалось разобрать страницу игрока.');
     }
 
     return payload.data;
   }
 }
+

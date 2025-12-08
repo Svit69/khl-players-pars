@@ -1,45 +1,49 @@
+﻿const FLAG_MAP = {
+  россия: 'russia',
+  'российская федерация': 'russia',
+  russia: 'russia',
+  canada: 'canada',
+  канада: 'canada',
+  usa: 'usa',
+  сша: 'usa',
+  финляндия: 'finland',
+  finland: 'finland',
+  sweden: 'sweden',
+  швеция: 'sweden',
+  latvia: 'latvia',
+  латвия: 'latvia',
+  belarus: 'belarus',
+  беларусь: 'belarus',
+  чехия: 'czech',
+  slovakia: 'slovakia',
+  словакия: 'slovakia',
+  germany: 'germany',
+  германия: 'germany',
+  kazakhstan: 'kazakhstan',
+  казахстан: 'kazakhstan',
+  switzerland: 'switzerland',
+  швейцария: 'switzerland',
+  norway: 'norway',
+  норвегия: 'norway',
+  denmark: 'denmark',
+  дания: 'denmark',
+  france: 'france',
+  франция: 'france',
+  austria: 'austria',
+  австрия: 'austria',
+  china: 'china',
+  китай: 'china',
+  slovenia: 'slovenia',
+  словения: 'slovenia',
+  croatia: 'croatia',
+  хорватия: 'croatia',
+};
+
 export function resolveFlagSrc(nationality) {
   if (!nationality) return '/assets/flags/default.svg';
   const slug = nationality.trim().toLowerCase();
-  const map = {
-    россия: 'russia',
-    рф: 'russia',
-    canada: 'canada',
-    канада: 'canada',
-    usa: 'usa',
-    сша: 'usa',
-    финляндия: 'finland',
-    finland: 'finland',
-    sweden: 'sweden',
-    швеция: 'sweden',
-    латвия: 'latvia',
-    latvia: 'latvia',
-    беларусь: 'belarus',
-    belarus: 'belarus',
-    чехия: 'czech',
-    slovakia: 'slovakia',
-    словакия: 'slovakia',
-    germany: 'germany',
-    германия: 'germany',
-    kazakhstan: 'kazakhstan',
-    казахстан: 'kazakhstan',
-    switzerland: 'switzerland',
-    швейцария: 'switzerland',
-    norway: 'norway',
-    норвегия: 'norway',
-    denmark: 'denmark',
-    дания: 'denmark',
-    france: 'france',
-    франция: 'france',
-    austria: 'austria',
-    австрия: 'austria',
-    china: 'china',
-    китай: 'china',
-    slovenia: 'slovenia',
-    croatia: 'croatia',
-  };
-  const key = map[slug] || slug.replace(/\s+/g, '-');
-  return `/assets/flags/icon-${key}.png`;
+  const code = FLAG_MAP[slug] || slug.replace(/\s+/g, '-');
+  return `/assets/flags/icon-${code}.png`;
 }
 
 export function ageSuffix(age) {
@@ -61,3 +65,16 @@ export function foClass(value) {
   if (value <= 100) return 'stats-digest__value--ultra';
   return '';
 }
+
+const MONTHS_SHORT = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+
+const pad = (n) => (n < 10 ? `0${n}` : `${n}`);
+
+export function formatDateRange(fromIso, toIso) {
+  if (!fromIso || !toIso) return '';
+  const from = new Date(fromIso);
+  const to = new Date(toIso);
+  if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) return '';
+  return `${pad(from.getUTCDate())} ${MONTHS_SHORT[from.getUTCMonth()]} – ${pad(to.getUTCDate())} ${MONTHS_SHORT[to.getUTCMonth()]}`;
+}
+

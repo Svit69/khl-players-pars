@@ -36,11 +36,8 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ success: true, data: result });
   } catch (error) {
-    const status = error.message?.toLowerCase().includes('СЃСЃС‹Р»РєР°') ? 400 : 400;
-    return res.status(status).json({
-      success: false,
-      message: error.message || 'РќРµРёР·РІРµСЃС‚РЅР°СЏ РѕС€РёР±РєР°',
-    });
+    const message = error.message || 'Не удалось обработать запрос.';
+    return res.status(400).json({ success: false, message });
   }
 }
 

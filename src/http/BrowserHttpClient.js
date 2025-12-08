@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+﻿import fetch from 'node-fetch';
 import AbstractHttpClient from './AbstractHttpClient.js';
 
 class BrowserHttpClient extends AbstractHttpClient {
@@ -55,10 +55,10 @@ class BrowserHttpClient extends AbstractHttpClient {
         continue;
       }
 
-      throw new Error(`Ошибка при запросе страницы: ${response.status}`);
+      throw new Error(`Не удалось получить страницу: ${response.status}`);
     }
 
-    throw new Error('Превышено число попыток переходов по редиректам');
+    throw new Error('Превышено число попыток загрузки страницы.');
   }
 
   #updateCookieJar(response, setter) {
@@ -112,3 +112,4 @@ class BrowserHttpClient extends AbstractHttpClient {
 }
 
 export default BrowserHttpClient;
+

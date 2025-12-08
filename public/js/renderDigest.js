@@ -1,4 +1,4 @@
-import { foClass } from './utils.js';
+﻿import { foClass } from './utils.js';
 
 export default function renderDigest(matchStats) {
   const { lastFiveFoAvg, lastFifteenFoAvg, seasonFoAvg } = matchStats || {};
@@ -32,3 +32,4 @@ export default function renderDigest(matchStats) {
 
   return wrap;
 }
+

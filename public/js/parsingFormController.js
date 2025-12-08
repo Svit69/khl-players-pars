@@ -1,4 +1,4 @@
-export default class ParsingFormController {
+﻿export default class ParsingFormController {
   #formElement;
   #inputElement;
   #submitButton;
@@ -7,8 +7,8 @@ export default class ParsingFormController {
 
   constructor(formElement, resultView, apiClient) {
     this.#formElement = formElement;
-    this.#inputElement = formElement.querySelector('input[type=\"url\"]');
-    this.#submitButton = formElement.querySelector('button[type=\"submit\"]');
+    this.#inputElement = formElement.querySelector('input[type="url"]');
+    this.#submitButton = formElement.querySelector('button[type="submit"]');
     this.#resultView = resultView;
     this.#apiClient = apiClient;
     this.registerEvents();
@@ -24,17 +24,17 @@ export default class ParsingFormController {
   async handleSubmit() {
     const url = this.#inputElement.value.trim();
     if (!url) {
-      this.#resultView.showError('Введите ссылку на игрока');
+      this.#resultView.showError('Введите ссылку на игрока.');
       return;
     }
 
     try {
       this.#toggleSubmitState(true);
       this.#resultView.showLoading();
-      const parsedText = await this.#apiClient.requestPlayerParsing(url);
-      this.#resultView.showSuccess(parsedText);
+      const parsed = await this.#apiClient.requestPlayerParsing(url);
+      this.#resultView.showSuccess(parsed);
     } catch (error) {
-      this.#resultView.showError(error.message || 'Ошибка при обработке запроса');
+      this.#resultView.showError(error.message || 'Не удалось выполнить запрос.');
     } finally {
       this.#toggleSubmitState(false);
     }
@@ -44,3 +44,4 @@ export default class ParsingFormController {
     this.#submitButton.disabled = isDisabled;
   }
 }
+

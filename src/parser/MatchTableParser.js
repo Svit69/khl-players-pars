@@ -1,4 +1,6 @@
-import { SELECTORS, SEASON_START_UTC } from './constants.js';
+﻿import { SELECTORS, SEASON_START_UTC } from './constants.js';
+
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 class MatchTableParser {
   #fantasyCalculator;
@@ -9,30 +11,27 @@ class MatchTableParser {
 
   parse(tableBody, $, position) {
     if (!tableBody || tableBody.length === 0) {
-      return { rows: [], seasonFoAvg: null, lastFiveFoAvg: null };
+      return { rows: [], seasonFoAvg: null, lastFiveFoAvg: null, lastFifteenFoAvg: null, tours: [] };
     }
 
     const rows = tableBody.find('tr');
     if (!rows || rows.length < 2) {
-      return { rows: [], seasonFoAvg: null, lastFiveFoAvg: null };
+      return { rows: [], seasonFoAvg: null, lastFiveFoAvg: null, lastFifteenFoAvg: null, tours: [] };
     }
 
-    const goalieMode =
-      this.#isGoalie(position) || this.#looksLikeGoalieRow(rows.eq(1));
+    const goalieMode = this.#isGoalie(position) || this.#looksLikeGoalieRow(rows.eq(1));
 
     const slice = [];
-    const limit = Math.min(rows.length - 1, 15); // берем больше для средней 15
     let seasonSum = 0;
     let seasonCount = 0;
     let lastFiveSum = 0;
     let lastFiveCount = 0;
     let lastFifteenSum = 0;
     let lastFifteenCount = 0;
+    const tourBuckets = new Map();
 
     for (let i = 1; i < rows.length; i += 1) {
-      const match = goalieMode
-        ? this.#mapGoalieRow(rows.eq(i), $)
-        : this.#mapSkaterRow(rows.eq(i), $);
+      const match = goalieMode ? this.#mapGoalieRow(rows.eq(i)) : this.#mapSkaterRow(rows.eq(i));
 
       if (this.#fantasyCalculator) {
         const fo = this.#fantasyCalculator.compute(position, match);
@@ -40,22 +39,27 @@ class MatchTableParser {
       }
 
       const matchDate = this.#parseDateUtc(match.date);
-      if (
-        matchDate &&
-        matchDate >= SEASON_START_UTC &&
-        typeof match.fantasyScore === 'number' &&
-        !match.hasDash
-      ) {
+      const validFo = typeof match.fantasyScore === 'number' && !match.hasDash;
+
+      if (matchDate && matchDate >= SEASON_START_UTC && validFo) {
         seasonSum += match.fantasyScore;
         seasonCount += 1;
+
+        const tourIndex = this.#tourIndex(matchDate);
+        if (tourIndex >= 1) {
+          const bucket = tourBuckets.get(tourIndex) || { sum: 0, count: 0 };
+          bucket.sum += match.fantasyScore;
+          bucket.count += 1;
+          tourBuckets.set(tourIndex, bucket);
+        }
       }
 
-      if (i <= 5 && typeof match.fantasyScore === 'number' && !match.hasDash) {
+      if (i <= 5 && validFo) {
         lastFiveSum += match.fantasyScore;
         lastFiveCount += 1;
       }
 
-      if (i <= 15 && typeof match.fantasyScore === 'number' && !match.hasDash) {
+      if (i <= 15 && validFo) {
         lastFifteenSum += match.fantasyScore;
         lastFifteenCount += 1;
       }
@@ -69,18 +73,32 @@ class MatchTableParser {
     const lastFiveFoAvg = lastFiveCount ? Math.round(lastFiveSum / lastFiveCount) : null;
     const lastFifteenFoAvg = lastFifteenCount ? Math.round(lastFifteenSum / lastFifteenCount) : null;
 
+    const tours = Array.from(tourBuckets.entries())
+      .sort(([a], [b]) => a - b)
+      .map(([tour, bucket]) => {
+        const start = SEASON_START_UTC + (tour - 1) * 7 * DAY_MS;
+        const end = start + 6 * DAY_MS;
+        return {
+          tour,
+          from: new Date(start).toISOString(),
+          to: new Date(end).toISOString(),
+          avg: bucket.count ? Math.round(bucket.sum / bucket.count) : null,
+          matches: bucket.count,
+        };
+      });
+
     return {
       rows: slice,
       seasonFoAvg,
       lastFiveFoAvg,
       lastFifteenFoAvg,
+      tours,
     };
   }
 
-  #mapSkaterRow(row, $) {
+  #mapSkaterRow(row) {
     const cells = row.children('th,td');
-    const readCell = (idx) =>
-      cells && cells.eq(idx).length > 0 ? cells.eq(idx).text().trim() : '';
+    const readCell = (idx) => (cells && cells.eq(idx).length > 0 ? cells.eq(idx).text().trim() : '');
     const readScore = () => {
       if (!cells || cells.eq(2).length === 0) return '';
       const cell = cells.eq(2);
@@ -109,10 +127,9 @@ class MatchTableParser {
     };
   }
 
-  #mapGoalieRow(row, $) {
+  #mapGoalieRow(row) {
     const cells = row.children('th,td');
-    const readCell = (idx) =>
-      cells && cells.eq(idx).length > 0 ? cells.eq(idx).text().trim() : '';
+    const readCell = (idx) => (cells && cells.eq(idx).length > 0 ? cells.eq(idx).text().trim() : '');
     const readScore = () => {
       if (!cells || cells.eq(2).length === 0) return '';
       const cell = cells.eq(2);
@@ -163,7 +180,7 @@ class MatchTableParser {
   }
 
   #isGoalie(position) {
-    return position && position.toLowerCase().includes('вратар');
+    return position && position.toLowerCase().includes('врат');
   }
 
   #looksLikeGoalieRow(row) {
@@ -201,6 +218,7 @@ class MatchTableParser {
       июл: 6,
       авг: 7,
       сен: 8,
+      сент: 8,
       окт: 9,
       ноя: 10,
       дек: 11,
@@ -210,6 +228,12 @@ class MatchTableParser {
     if (!Number.isFinite(day) || !Number.isFinite(year) || typeof month === 'undefined') return null;
     return Date.UTC(year, month, day);
   }
+
+  #tourIndex(matchDateUtc) {
+    if (matchDateUtc < SEASON_START_UTC) return -1;
+    return Math.floor((matchDateUtc - SEASON_START_UTC) / (7 * DAY_MS)) + 1;
+  }
 }
 
 export default MatchTableParser;
+

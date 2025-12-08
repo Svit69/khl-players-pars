@@ -1,7 +1,9 @@
-class AbstractContentParser {
+﻿class AbstractContentParser {
+  // Override in inheritors
   parseContent(_html) {
-    throw new Error('Метод parseContent должен быть реализован в наследнике');
+    throw new Error('parseContent must be implemented in a subclass');
   }
 }
 
 export default AbstractContentParser;
+

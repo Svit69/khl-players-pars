@@ -1,11 +1,11 @@
-export default class StatsTableRenderer {
+﻿export default class StatsTableRenderer {
   render(matchStatsList, position = '') {
     if (!Array.isArray(matchStatsList) || matchStatsList.length === 0) {
       return null;
     }
 
     const isGoalie =
-      (position && position.toLowerCase().includes('вратар')) ||
+      (position && position.toLowerCase().includes('врат')) ||
       matchStatsList[0]?.type === 'goalie' ||
       typeof matchStatsList[0]?.wins !== 'undefined';
     const headers = isGoalie ? this.#goalieHeaders() : this.#skaterHeaders();
@@ -15,7 +15,7 @@ export default class StatsTableRenderer {
 
     const title = document.createElement('div');
     title.className = 'stats-table-title';
-    title.textContent = 'Статистика матча (первые строки таблицы)';
+    title.textContent = 'Статистика матча (5 последних игр)';
     wrapper.appendChild(title);
 
     const table = document.createElement('table');
@@ -36,14 +36,13 @@ export default class StatsTableRenderer {
       const th = document.createElement('th');
       th.textContent = h.label;
       if (h.title) th.title = h.title;
-       if (idx === 0) th.classList.add('stats-table__fo');
+      if (idx === 0) th.classList.add('stats-table__fo');
       headerRow.appendChild(th);
     });
     return headerRow;
   }
 
-  #buildRow(match, headers) {
-    const row = document.createElement('tr');
+  #buildRow(match, _headers) {
     const values =
       match.type === 'goalie'
         ? [
@@ -84,6 +83,8 @@ export default class StatsTableRenderer {
             match.interceptions || '—',
           ];
 
+    const row = document.createElement('tr');
+
     values.forEach((value, idx) => {
       const td = document.createElement('td');
       const span = document.createElement('span');
@@ -99,7 +100,7 @@ export default class StatsTableRenderer {
 
   #skaterHeaders() {
     return [
-      { label: 'ФО', title: 'Фэнтези очки (для полевых)' },
+      { label: 'ФО', title: 'Фэнтези очки за матч' },
       { label: 'Дата', title: '' },
       { label: 'Команды', title: '' },
       { label: 'Счет', title: '' },
@@ -120,23 +121,24 @@ export default class StatsTableRenderer {
 
   #goalieHeaders() {
     return [
-      { label: 'ФО', title: 'Фэнтези очки (для вратарей)' },
+      { label: 'ФО', title: 'Фэнтези очки за матч' },
       { label: 'Дата', title: '' },
       { label: 'Команды', title: '' },
       { label: 'Счет', title: '' },
       { label: '№', title: 'Номер игрока' },
       { label: 'В', title: 'Выигрыши' },
-      { label: 'П', title: 'Проигрыши' },
+      { label: 'П', title: 'Поражения' },
       { label: 'Бр', title: 'Броски' },
       { label: 'ПШ', title: 'Пропущенные шайбы' },
       { label: 'ОБ', title: 'Отраженные броски' },
-      { label: '%ОБ', title: 'Процент отраженных' },
+      { label: '%ОБ', title: 'Процент отраженных бросков' },
       { label: 'КН', title: 'Коэффициент надежности' },
       { label: 'Ш', title: 'Заброшенные шайбы' },
       { label: 'А', title: 'Голевые передачи' },
-      { label: 'И\"0\"', title: 'Сухие игры' },
+      { label: 'И"0"', title: 'Сухие игры' },
       { label: 'Штр', title: 'Штрафные минуты' },
       { label: 'ВП', title: 'Время на площадке' },
     ];
   }
 }
+

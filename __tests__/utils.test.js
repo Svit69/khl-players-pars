@@ -26,3 +26,4 @@ describe('utils', () => {
     expect(resolveFlagSrc(null)).toContain('default');
   });
 });
+
