@@ -42,7 +42,7 @@ export default class StatsTableRenderer {
     return headerRow;
   }
 
-  #buildRow(match) {
+  #buildRow(match, headers) {
     const row = document.createElement('tr');
     const values =
       match.type === 'goalie'
