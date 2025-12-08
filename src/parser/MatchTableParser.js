@@ -28,7 +28,6 @@ class MatchTableParser {
     let lastFiveCount = 0;
     let lastFifteenSum = 0;
     let lastFifteenCount = 0;
-    const tourMatches = [];
 
     for (let i = 1; i < rows.length; i += 1) {
       const match = goalieMode
@@ -49,7 +48,6 @@ class MatchTableParser {
       ) {
         seasonSum += match.fantasyScore;
         seasonCount += 1;
-        tourMatches.push({ fo: match.fantasyScore, ts: matchDate });
       }
 
       if (i <= 5 && typeof match.fantasyScore === 'number' && !match.hasDash) {
@@ -70,14 +68,12 @@ class MatchTableParser {
     const seasonFoAvg = seasonCount ? Math.round(seasonSum / seasonCount) : null;
     const lastFiveFoAvg = lastFiveCount ? Math.round(lastFiveSum / lastFiveCount) : null;
     const lastFifteenFoAvg = lastFifteenCount ? Math.round(lastFifteenSum / lastFifteenCount) : null;
-    const tours = this.#computeTours(tourMatches);
 
     return {
       rows: slice,
       seasonFoAvg,
       lastFiveFoAvg,
       lastFifteenFoAvg,
-      tours,
     };
   }
 
@@ -213,40 +209,6 @@ class MatchTableParser {
     const month = monthMap[mkey];
     if (!Number.isFinite(day) || !Number.isFinite(year) || typeof month === 'undefined') return null;
     return Date.UTC(year, month, day);
-  }
-
-  #computeTours(matches) {
-    if (!matches.length) return [];
-    const tours = [];
-    let start = SEASON_START_UTC;
-    let end = start + 6 * 86400000; // 7 дней включительно
-    let tourNumber = 1;
-    let idx = 0;
-    const sorted = matches.slice().sort((a, b) => b.ts - a.ts); // по убыванию даты
-
-    while (idx < sorted.length) {
-      let sum = 0;
-      let count = 0;
-      while (idx < sorted.length && sorted[idx].ts >= start && sorted[idx].ts <= end) {
-        sum += sorted[idx].fo;
-        count += 1;
-        idx += 1;
-      }
-      if (count > 0) {
-        tours.push({
-          tour: tourNumber,
-          start,
-          end,
-          foAvg: Math.round(sum / count),
-          count,
-        });
-      }
-      start = end + 1;
-      end = start + 6 * 86400000;
-      tourNumber += 1;
-    }
-
-    return tours;
   }
 }
 

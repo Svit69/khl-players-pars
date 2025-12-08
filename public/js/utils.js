@@ -61,10 +61,3 @@ export function foClass(value) {
   if (value <= 100) return 'stats-digest__value--ultra';
   return '';
 }
-
-export function formatDateRange(startUtc, endUtc) {
-  if (typeof startUtc !== 'number' || typeof endUtc !== 'number') return '';
-  const fmt = (ts) =>
-    new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short' }).format(ts);
-  return `${fmt(startUtc)} — ${fmt(endUtc)}`;
-}
