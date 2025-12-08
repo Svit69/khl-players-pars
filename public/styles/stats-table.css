@@ -113,3 +113,24 @@
   background: linear-gradient(160deg, #f8fffb, #b7ffea, #7fffd8);
   box-shadow: 0 12px 28px rgba(127, 255, 216, 0.35);
 }
+
+.stats-digest__value--orange {
+  background: linear-gradient(135deg, #ffb347, #ff9a00);
+  box-shadow: 0 10px 24px rgba(255, 154, 0, 0.25);
+}
+
+.stats-digest__value--yellow {
+  background: linear-gradient(135deg, #ffe47a, #f9d423);
+  box-shadow: 0 10px 24px rgba(249, 212, 35, 0.25);
+  color: #0b1411;
+}
+
+.stats-digest__value--emerald {
+  background: linear-gradient(135deg, #3ad29f, #1fbf8f);
+  box-shadow: 0 10px 24px rgba(58, 210, 159, 0.35);
+}
+
+.stats-digest__value--aqua {
+  background: linear-gradient(135deg, #37e2f2, #00c6ff);
+  box-shadow: 0 10px 24px rgba(55, 226, 242, 0.35);
+}

@@ -170,9 +170,13 @@ export default class ResultView {
 
   #foClass(value) {
     if (typeof value !== 'number') return '';
-    if (value >= 90) return 'stats-digest__value--ultra';
-    if (value >= 70) return 'stats-digest__value--high';
-    if (value >= 50) return 'stats-digest__value--mid';
-    return 'stats-digest__value--low';
+    if (value < 20) return 'stats-digest__value--low';
+    if (value < 30) return 'stats-digest__value--orange';
+    if (value < 40) return 'stats-digest__value--yellow';
+    if (value < 50) return 'stats-digest__value--mid';
+    if (value < 60) return 'stats-digest__value--emerald';
+    if (value < 70) return 'stats-digest__value--aqua';
+    if (value <= 100) return 'stats-digest__value--ultra';
+    return '';
   }
 }
