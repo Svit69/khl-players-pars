@@ -19,7 +19,7 @@ export default class StatsTableRenderer {
     wrapper.appendChild(title);
 
     const table = document.createElement('table');
-    table.className = 'stats-table';
+    table.className = `stats-table ${isGoalie ? 'stats-table--goalie' : 'stats-table--skater'}`;
     table.appendChild(this.#buildHeader(headers));
 
     matchStatsList.forEach((match) => {
@@ -86,8 +86,11 @@ export default class StatsTableRenderer {
 
     values.forEach((value, idx) => {
       const td = document.createElement('td');
-      td.textContent = value;
+      const span = document.createElement('span');
+      span.className = 'stats-table__pill';
+      span.textContent = value;
       if (idx === 0) td.classList.add('stats-table__fo');
+      td.appendChild(span);
       row.appendChild(td);
     });
 
