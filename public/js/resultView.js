@@ -12,23 +12,20 @@ export default class ResultView {
     this.#container.innerHTML = '<span class="result__placeholder">Загружаем...</span>';
   }
 
-  showSuccess(text) {
+  showSuccess(data) {
     this.#container.classList.remove('result--error');
     this.#container.classList.add('result--success');
     this.#container.textContent = '';
 
-    const profile = this.#renderProfile(text);
+    const profile = this.#renderProfile(data);
     if (profile) this.#container.appendChild(profile);
 
-    if (Array.isArray(text?.matchStats?.rows) && text.matchStats.rows.length) {
-      const digest = this.#renderDigest(text.matchStats);
-      if (digest) {
-        this.#container.appendChild(digest);
-      }
-      const table = this.#statsRenderer.render(text.matchStats.rows, text?.position || '');
-      if (table) {
-        this.#container.appendChild(table);
-      }
+    if (Array.isArray(data?.matchStats?.rows) && data.matchStats.rows.length) {
+      const digest = this.#renderDigest(data.matchStats);
+      if (digest) this.#container.appendChild(digest);
+
+      const table = this.#statsRenderer.render(data.matchStats.rows, data?.position || '');
+      if (table) this.#container.appendChild(table);
     }
   }
 
@@ -86,15 +83,43 @@ export default class ResultView {
     return wrap;
   }
 
-  #renderSummary(matchStats) {
-    // Deprecated
-    return null;
+  #renderDigest(matchStats) {
+    const { lastFiveFoAvg, lastFifteenFoAvg, seasonFoAvg } = matchStats;
+    const items = [
+      { label: 'Посл. 5', value: lastFiveFoAvg },
+      { label: 'Посл. 15', value: lastFifteenFoAvg },
+      { label: 'Сезон', value: seasonFoAvg },
+    ].filter((i) => i.value !== null && typeof i.value !== 'undefined');
+
+    if (!items.length) return null;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'stats-digest';
+
+    items.forEach((item, idx) => {
+      const box = document.createElement('div');
+      box.className = 'stats-digest__item';
+
+      const label = document.createElement('span');
+      label.className = 'stats-digest__label';
+      label.textContent = item.label;
+
+      const val = document.createElement('span');
+      val.className = `stats-digest__value ${this.#foClass(item.value)}`;
+      val.textContent = item.value;
+
+      box.appendChild(label);
+      box.appendChild(val);
+      wrap.appendChild(box);
+    });
+
+    return wrap;
   }
 
   #resolveFlagSrc(nationality) {
-    if (!nationality) return '/flags/default.svg';
-    const slug = nationality.trim().toLowerCase().replace(/\s+/g, '-');
-    const codeMap = {
+    if (!nationality) return '/assets/flags/default.svg';
+    const slug = nationality.trim().toLowerCase();
+    const map = {
       россия: 'russia',
       рф: 'russia',
       canada: 'canada',
@@ -131,7 +156,7 @@ export default class ResultView {
       slovenia: 'slovenia',
       croatia: 'croatia',
     };
-    const key = codeMap[slug] || codeMap[nationality.toLowerCase()] || slug;
+    const key = map[slug] || slug.replace(/\s+/g, '-');
     return `/assets/flags/icon-${key}.png`;
   }
 
@@ -143,36 +168,11 @@ export default class ResultView {
     return 'лет';
   }
 
-  #renderDigest(matchStats) {
-    const { lastFiveFoAvg, lastFifteenFoAvg, seasonFoAvg } = matchStats;
-    const items = [
-      { label: 'Посл. 5', value: lastFiveFoAvg },
-      { label: 'Посл. 15', value: lastFifteenFoAvg },
-      { label: 'Сезон', value: seasonFoAvg },
-    ].filter((i) => i.value !== null && typeof i.value !== 'undefined');
-
-    if (!items.length) return null;
-
-    const wrap = document.createElement('div');
-    wrap.className = 'stats-digest';
-
-    items.forEach((item) => {
-      const box = document.createElement('div');
-      box.className = 'stats-digest__item';
-
-      const label = document.createElement('span');
-      label.className = 'stats-digest__label';
-      label.textContent = item.label;
-
-      const val = document.createElement('span');
-      val.className = 'stats-digest__value';
-      val.textContent = item.value;
-
-      box.appendChild(label);
-      box.appendChild(val);
-      wrap.appendChild(box);
-    });
-
-    return wrap;
+  #foClass(value) {
+    if (typeof value !== 'number') return '';
+    if (value >= 90) return 'stats-digest__value--ultra';
+    if (value >= 70) return 'stats-digest__value--high';
+    if (value >= 50) return 'stats-digest__value--mid';
+    return 'stats-digest__value--low';
   }
 }

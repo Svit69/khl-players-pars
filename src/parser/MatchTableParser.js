@@ -71,11 +71,9 @@ class MatchTableParser {
       }
     }
 
-    const seasonFoAvg = seasonCount ? Number((seasonSum / seasonCount).toFixed(1)) : null;
-    const lastFiveFoAvg = lastFiveCount ? Number((lastFiveSum / lastFiveCount).toFixed(1)) : null;
-    const lastFifteenFoAvg = lastFifteenCount
-      ? Number((lastFifteenSum / lastFifteenCount).toFixed(1))
-      : null;
+    const seasonFoAvg = seasonCount ? Math.round(seasonSum / seasonCount) : null;
+    const lastFiveFoAvg = lastFiveCount ? Math.round(lastFiveSum / lastFiveCount) : null;
+    const lastFifteenFoAvg = lastFifteenCount ? Math.round(lastFifteenSum / lastFifteenCount) : null;
 
     return {
       rows: slice,

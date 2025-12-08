@@ -84,7 +84,6 @@
 .stats-digest__value {
   padding: 8px 12px;
   border-radius: 12px;
-  background: linear-gradient(145deg, #4cff8a, #2acf6f);
   color: #0b1411;
   font-weight: 900;
   box-shadow: 0 10px 24px rgba(76, 255, 138, 0.35);
@@ -93,4 +92,24 @@
 .stats-digest__item:last-child {
   border-right: none;
   padding-right: 0;
+}
+
+.stats-digest__value--low {
+  background: linear-gradient(135deg, #ff6b6b, #ff3b30);
+  box-shadow: 0 10px 24px rgba(255, 107, 107, 0.25);
+}
+
+.stats-digest__value--mid {
+  background: linear-gradient(145deg, #4cff8a, #2acf6f);
+  box-shadow: 0 10px 24px rgba(76, 255, 138, 0.35);
+}
+
+.stats-digest__value--high {
+  background: linear-gradient(145deg, #5be7ff, #24d5ff);
+  box-shadow: 0 10px 24px rgba(91, 231, 255, 0.35);
+}
+
+.stats-digest__value--ultra {
+  background: linear-gradient(160deg, #f8fffb, #b7ffea, #7fffd8);
+  box-shadow: 0 12px 28px rgba(127, 255, 216, 0.35);
 }
