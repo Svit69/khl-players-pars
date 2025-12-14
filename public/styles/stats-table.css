@@ -5,6 +5,7 @@
   padding: 12px;
   background: rgba(255, 255, 255, 0.03);
   overflow-x: auto;
+  max-width: 100%;
 }
 
 .stats-table-title {
@@ -16,7 +17,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
-  min-width: 1080px;
+  min-width: 960px;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(72, 207, 174, 0.02));
   border-radius: 14px;
   overflow: hidden;
@@ -164,6 +165,7 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: radial-gradient(circle at 20% 20%, rgba(72, 207, 174, 0.08), rgba(255, 255, 255, 0.02));
   box-shadow: var(--shadow);
+  overflow-x: auto;
 }
 
 .tour-digest__head {
@@ -231,7 +233,7 @@
 
 @media (max-width: 640px) {
   .stats-table {
-    min-width: 720px;
+    min-width: 640px;
     font-size: 12px;
   }
 
